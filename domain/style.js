@@ -1,3 +1,5 @@
+import { BadRequestError } from "../errors/errors";
+
 // ## 스타일
 
 // **스타일 등록**
@@ -5,7 +7,82 @@
 // - 유저가 사진(여러장 가능)을 업로드하고 태그(최대 3개), 제목, 닉네임, 스타일 구성, 스타일 설명, 비밀번호를 입력하여 스타일을 등록합니다.
 export class UnregisteredStyle {
   // 태그(최대 3개), 제목, 닉네임, 스타일 구성, 스타일 설명, 비밀번호
-  constructor(tag, title, nickname) {}
+  constructor(tags, title, nickname, styleComponent, description, password) {
+    this.tags = tags;
+    this.title = title;
+    this.nickname = nickname;
+    this.styleComponent = styleComponent;
+    this.description = description;
+    this.password = password;
+  }
+
+  static fromInfo({
+    tags,
+    title,
+    nickname,
+    styleComponent,
+    description,
+    password,
+  }) {
+    // 태그는 최대 3개
+    if (tags.length > 3) throw new BadRequestError("태그 너무 많아, 3개까지만");
+    return new UnregisteredStyle(
+      tags,
+      title,
+      nickname,
+      styleComponent,
+      description,
+      password
+    );
+  }
+}
+
+export class Style {
+  // 태그(최대 3개), 제목, 닉네임, 스타일 구성, 스타일 설명, 비밀번호
+  constructor(
+    id,
+    tags,
+    title,
+    nickname,
+    styleComponent,
+    description,
+    password,
+    createdAt
+  ) {
+    this.id = id;
+    this.tags = tags;
+    this.title = title;
+    this.nickname = nickname;
+    this.styleComponent = styleComponent;
+    this.description = description;
+    this.password = password;
+    this.createdAt = createdAt;
+  }
+
+  static fromEntity({
+    id,
+    tags,
+    title,
+    nickname,
+    styleComponent,
+    description,
+    password,
+    created_at: createdAt,
+  }) {
+    // 태그는 최대 3개
+    if (tags.length > 3) throw new BadRequestError("태그 너무 많아, 3개까지만");
+
+    return new Style(
+      id,
+      tags,
+      title,
+      nickname,
+      styleComponent,
+      description,
+      password,
+      createdAt
+    );
+  }
 }
 
 // **스타일 수정**
