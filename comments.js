@@ -10,28 +10,21 @@
 // - 큐레이팅을 조회할 경우 그 큐레이팅에 해당되는 답글도 같이 조회됩니다.
 // - 닉네임, 답글 내용이 표시됩니다.
 export class CurationComment {
-  constructor(id, nickname, content, createdAt) {
+  constructor(id, nickname, content) {
     this.id = id;
     this.nickname = nickname;
     this.content = content;
-    this.createdAt = createdAt;
   }
-  static fromEntity(commentEntity, styleNickname) {
+  static fromEntity(commentEntity) {
     const info = {
       id: commentEntity.id.toString(),
-      nickname: styleNickname,
+      nickname: commentEntity.curation.style.nickname, // todo: schema relations
       content: commentEntity.content,
-      createdAt: createdAt,
     };
     validateCurationCommentInfo(info);
     // 출입국 심사... imigration입니다...
 
-    return new CurationComment(
-      info.id,
-      info.nickname,
-      info.content,
-      info.createdAt
-    );
+    return new CurationComment(info.id, info.nickname, info.content);
   }
 }
 export class UnregisteredCurationComment {
@@ -41,25 +34,22 @@ export class UnregisteredCurationComment {
     this.password = password;
   }
 
-  static fromRequest(curationId, body) {
-    return new UnregisteredCurationComment(
-      curationId,
-      body.content,
-      body.password
-    );
+  static fromRequest(curationId, content, password) {
+    return new UnregisteredCurationComment(curationId, content, password);
   }
 
-  toCreateData() {
-    return {
-      curation_id: this.curationId,
-      content: this.content,
-      password: this.password,
-    };
-  }
+  // db쪽으로 이동
+  // toCreateData() {
+  //   return {
+  //     curation_id: this.curationId,
+  //     content: this.content,
+  //     password: this.password,
+  //   };
+  // }
 
-  toUpdateData() {
-    return {
-      content: this.content,
-    };
-  }
+  // toUpdateData() {
+  //   return {
+  //     content: this.content,
+  //   };
+  // }
 }
