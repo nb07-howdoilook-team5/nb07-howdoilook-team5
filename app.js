@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import articleRouter from "./routes/article.route.js";
-import { HttpError } from "./errors/customErrors.js";
+import { HttpError } from "./errors/errors.js";
 
 import { config } from "dotenv";
 import productRouter from "./routes/product.route.js";
