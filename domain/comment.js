@@ -27,29 +27,29 @@ export class CurationComment {
     return new CurationComment(info.id, info.nickname, info.content);
   }
 }
-export class UnregisteredCurationComment {
-  constructor(curationId, content, password) {
-    this.curationId = curationId;
-    this.content = content;
-    this.password = password;
-  }
+// export class UnregisteredCurationComment {
+//   constructor(curationId, content, password) {
+//     this.curationId = curationId;
+//     this.content = content;
+//     this.password = password;
+//   }
 
-  static fromRequest(curationId, content, password) {
-    return new UnregisteredCurationComment(curationId, content, password);
-  }
+//   static fromRequest(curationId, content, password) {
+//     return new UnregisteredCurationComment(curationId, content, password);
+//   }
 
-  // db쪽으로 이동
-  // toCreateData() {
-  //   return {
-  //     curation_id: this.curationId,
-  //     content: this.content,
-  //     password: this.password,
-  //   };
-  // }
+//   // db쪽으로 이동
+//   // toCreateData() {
+//   //   return {
+//   //     curation_id: this.curationId,
+//   //     content: this.content,
+//   //     password: this.password,
+//   //   };
+//   // }
 
-  // toUpdateData() {
-  //   return {
-  //     content: this.content,
-  //   };
-  // }
-}
+//   // toUpdateData() {
+//   //   return {
+//   //     content: this.content,
+//   //   };
+//   // }
+// }
