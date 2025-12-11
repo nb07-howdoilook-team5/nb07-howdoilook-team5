@@ -1,4 +1,4 @@
-import { BadRequestError } from "../errors/errors";
+import { BadRequestError } from "../error/errors.js";
 
 export class UnregisteredCuration {
   // 닉네임, 트렌디,개성,가성비점수,한줄 큐레이팅,비밀번호
@@ -51,8 +51,7 @@ export class Curation {
     trendy,
     personality,
     practicality,
-    costEffectiveness,
-    password
+    costEffectiveness
   ) {
     this.id = id;
     this.nickname = nickname;
@@ -61,7 +60,6 @@ export class Curation {
     this.personality = personality;
     this.practicality = practicality;
     this.costEffectiveness = costEffectiveness;
-    this.password = password;
   }
 
   static fromEntity({
@@ -72,7 +70,6 @@ export class Curation {
     personality,
     practicality,
     costEffectiveness,
-    password,
   }) {
     // 태그는 최대 3개
 
@@ -83,8 +80,7 @@ export class Curation {
       trendy,
       personality,
       practicality,
-      costEffectiveness,
-      password
+      costEffectiveness
     );
   }
 }
