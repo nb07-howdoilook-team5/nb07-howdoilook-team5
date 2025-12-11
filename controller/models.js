@@ -231,10 +231,3 @@ export const CommentFormInput = z.object({
 export const CommentDeleteFormInput = z.object({
   password: z.string(),
 });
-
-// baseUrl - input
-export class BaseUrlSettingFormInput {
-  constructor(baseUrl) {
-    this.baseUrl = baseUrl;
-  }
-}
