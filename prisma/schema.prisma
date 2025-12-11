@@ -47,8 +47,3 @@ model curation_comment {
   curation_id    BigInt
   curation    curation   @relation(fields: [curation_id],references: [id],onDelete: Cascade)
 }
-
-
-
-
-
