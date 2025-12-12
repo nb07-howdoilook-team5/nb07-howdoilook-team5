@@ -23,11 +23,9 @@ const validatePostCuration = (req) => {
 const validateUpdateCuration = (req) => {
   const { curationId } = req.params;
   const body = CurationFormInput.parse(req.body);
-  const { password, ...data } = body;
   return {
     curationId,
-    password,
-    data,
+    ...body,
   };
 };
 
@@ -65,36 +63,29 @@ class CurationController {
   };
 
   putCuration = async (req, res, next) => {
-    const { curationId, password, data } = validateUpdateCuration(req);
-    const result = await throwHttpError(prisma.curation.updateMany, {
+    const { curationId, password, ...updateData } = validateUpdateCuration(req);
+    const updatedEntity = await throwHttpError(prisma.curation.update, {
       where: {
-        id: curationId,
-        password: password,
+        id_password: {
+          id: curationId,
+          password: password,
+        },
       },
-      data: data,
+      data: updateData,
     });
-    if (result.count === 0) {
-      throw new ForbiddenError("비밀번호가 일치하지 않습니다.");
-    }
-    const updatedEntity = await throwHttpError(prisma.curation.findUnique, {
-      where: { id: curationId },
-    });
-
     res.status(200).json(Curation.fromEntity(updatedEntity));
   };
 
   deleteCuration = async (req, res, next) => {
     const { curationId, password } = validateDeleteCuration(req);
-    const result = await throwHttpError(prisma.curation.deleteMany, {
+    const result = await throwHttpError(prisma.curation.delete, {
       where: {
-        id: curationId,
-        password: password,
+        id_password: {
+          id: curationId,
+          password: password,
+        },
       },
     });
-    if (result.count === 0) {
-      throw new ForbiddenError("비밀번호가 일치하지 않습니다.");
-    }
-
     res.status(200).json({ message: "큐레이팅을 삭제하였습니다." });
   };
 
