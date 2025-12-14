@@ -15,6 +15,12 @@ export class BadRequestError extends HttpError {
   }
 }
 
+export class ForbiddenError extends HttpError {
+  constructor(message = "비밀번호가 일치하지 않습니다.") {
+    super(403, message);
+  }
+}
+
 // 404 Not Found
 export class NotFoundError extends HttpError {
   constructor(message = "요청한 리소스를 찾을 수 없습니다.") {

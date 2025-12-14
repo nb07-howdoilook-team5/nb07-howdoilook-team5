@@ -210,38 +210,24 @@ export class StyleDeleteFormInput {
 // curation - input
 
 export const CurationFormInput = z.object({
-  nickname: z
-    .string()
-    .min(1, "닉네임은 최소 1자 이상이어야 합니다.")
-    .max(20, "닉네임은 최대 20자 이하여야 합니다."),
+  nickname: z.string(),
   content: z.string(),
-  trendy: z.string(),
-  personality: z.string(),
-  practicality: z.string(),
-  costEffectiveness: z.string(),
+  trendy: z.number(),
+  personality: z.number(),
+  practicality: z.number(),
+  costEffectiveness: z.number(),
   password: z.string(),
 });
 
-export class CurationDeleteFormInput {
-  constructor(password) {
-    this.password = password;
-  }
-}
+export const CurationDeleteFormInput = z.object({
+  password: z.string(),
+});
 
 export const CommentFormInput = z.object({
   content: z.string(),
   password: z.string(),
 });
 
-export class CommentDeleteFormInput {
-  constructor(password) {
-    this.password = password;
-  }
-}
-
-// baseUrl - input
-export class BaseUrlSettingFormInput {
-  constructor(baseUrl) {
-    this.baseUrl = baseUrl;
-  }
-}
+export const CommentDeleteFormInput = z.object({
+  password: z.string(),
+});
