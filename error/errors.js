@@ -16,7 +16,7 @@ export class BadRequestError extends HttpError {
 }
 
 export class ForbiddenError extends HttpError {
-  constructor(message = "비밀번호가 일치하지 않습니다.") {
+  constructor(message = "접근 권한이 없습니다.") {
     super(403, message);
   }
 }
