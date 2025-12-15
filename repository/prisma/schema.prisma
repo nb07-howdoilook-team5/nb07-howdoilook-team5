@@ -33,7 +33,7 @@ model curation {
   trendy      Int
   personality Int
   practicality Int
-  costEffectiveness Int
+  cost_effectiveness Int
   style_id      BigInt
   style        style   @relation(fields: [style_id],references: [id],onDelete: Cascade)
   curation_comment   curation_comment?

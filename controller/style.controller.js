@@ -16,8 +16,10 @@ const validatePostStyle = (req) => {
   };
 };
 const validateGetStyles = (req) => {
+  const { styleId } = req.params;
   const { page = 1, limit = 12, searchBy, keyword, tag, sortBy } = req.query;
   return {
+    styleId,
     page: parseInt(page),
     limit: parseInt(limit),
     searchBy,
@@ -76,18 +78,34 @@ class StyleController {
     res.status(201).json(Style.fromEntity(updatedEntity));
   };
   getGalleryStyles = async (req, res, next) => {
-    const { page, limit, searchBy, keyword, tag, sortBy } =
+    const { styleId, page, limit, searchBy, keyword, tag, sortBy } =
       validateGetStyles(req);
     const skip = (parseInt(page) - 1) * limit;
     const take = parseInt(limit);
 
     const where = {};
+    const searchByStylenickname = "nickname";
+    const searchByStyletitle = "title";
+    const searchByStylecontent = "content";
+    const searchByStyletag = "tag";
+
     if (keyword) {
-      if (searchBy === "nickname") where.nickname = { contains: keyword };
-      else if (searchBy === "description")
-        where.description = { contains: keyword };
-      else if (searchBy === "title") where.title = { contains: keyword };
-      else if (searchBy === "tag") where.tag = { contains: keyword };
+      switch (searchBy) {
+        case searchByStylenickname:
+          where.nickname = { contains: keyword };
+          break;
+        case searchByStylecontent:
+          where.description = { contains: keyword };
+          break;
+        case searchByStyletitle:
+          where.title = { contains: keyword };
+          break;
+        case searchByStyletag:
+          where.tag = { contains: keyword };
+          break;
+        default:
+          throw new InternalServerError(`Invalid searchBy: ${searchBy}`);
+      }
     }
     if (tag) {
       where.tag = { contains: tag };
