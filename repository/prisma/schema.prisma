@@ -46,6 +46,6 @@ model curation_comment {
   nickname    String
   content     String    @default("") 
   password    String
-  curaion_id  BigInt    @unique
-  curation    curation  @relation(fields: [curaion_id],references: [id],onDelete: Cascade)
+  curation_id  BigInt    @unique
+  curation    curation  @relation(fields: [curation_id],references: [id],onDelete: Cascade)
 }
