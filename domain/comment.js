@@ -3,10 +3,6 @@ export class CurationComment {
     this.id = id;
     this.nickname = nickname;
     this.content = content;
-<<<<<<< Updated upstream:domain/comments.js
-=======
-    this.created_at = createdAt;
->>>>>>> Stashed changes:comments.js
   }
   static fromEntity(commentEntity) {
     const info = {
