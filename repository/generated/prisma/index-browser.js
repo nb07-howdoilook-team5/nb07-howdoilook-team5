@@ -131,6 +131,26 @@ exports.Prisma.StyleScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
+exports.Prisma.CurationScalarFieldEnum = {
+  id: 'id',
+  nickname: 'nickname',
+  content: 'content',
+  password: 'password',
+  trendy: 'trendy',
+  personality: 'personality',
+  practicality: 'practicality',
+  costEffectiveness: 'costEffectiveness',
+  style_id: 'style_id'
+};
+
+exports.Prisma.Curation_commentScalarFieldEnum = {
+  id: 'id',
+  nickname: 'nickname',
+  content: 'content',
+  password: 'password',
+  curaion_id: 'curaion_id'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -148,7 +168,9 @@ exports.Prisma.NullsOrder = {
 
 
 exports.Prisma.ModelName = {
-  style: 'style'
+  style: 'style',
+  curation: 'curation',
+  curation_comment: 'curation_comment'
 };
 
 /**

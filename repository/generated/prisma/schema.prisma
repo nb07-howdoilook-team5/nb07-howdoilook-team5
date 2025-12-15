@@ -14,12 +14,36 @@ datasource db {
 }
 
 model style {
-  id          BigInt    @id @default(autoincrement())
+  id          BigInt     @id @default(autoincrement())
   nickname    String
   title       String
   password    String
-  description String?
-  tags        String[]  @default([])
-  created_at  DateTime  @default(now()) @db.Timestamptz(6)
-  updated_at  DateTime? @updatedAt @db.Timestamptz(6)
+  description String     @default("")
+  tags        String[]   @default([])
+  created_at  DateTime   @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime?  @updatedAt @db.Timestamptz(6)
+  curations   curation[]
+}
+
+model curation {
+  id                BigInt            @id @default(autoincrement())
+  nickname          String
+  content           String            @default("")
+  password          String
+  trendy            Int
+  personality       Int
+  practicality      Int
+  costEffectiveness Int
+  style_id          BigInt
+  style             style             @relation(fields: [style_id], references: [id], onDelete: Cascade)
+  curation_comment  curation_comment?
+}
+
+model curation_comment {
+  id         BigInt   @id @default(autoincrement())
+  nickname   String
+  content    String   @default("")
+  password   String
+  curaion_id BigInt   @unique
+  curation   curation @relation(fields: [curaion_id], references: [id], onDelete: Cascade)
 }

@@ -104,6 +104,26 @@ exports.Prisma.StyleScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
+exports.Prisma.CurationScalarFieldEnum = {
+  id: 'id',
+  nickname: 'nickname',
+  content: 'content',
+  password: 'password',
+  trendy: 'trendy',
+  personality: 'personality',
+  practicality: 'practicality',
+  costEffectiveness: 'costEffectiveness',
+  style_id: 'style_id'
+};
+
+exports.Prisma.Curation_commentScalarFieldEnum = {
+  id: 'id',
+  nickname: 'nickname',
+  content: 'content',
+  password: 'password',
+  curaion_id: 'curaion_id'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -121,7 +141,9 @@ exports.Prisma.NullsOrder = {
 
 
 exports.Prisma.ModelName = {
-  style: 'style'
+  style: 'style',
+  curation: 'curation',
+  curation_comment: 'curation_comment'
 };
 /**
  * Create the Client
@@ -131,10 +153,10 @@ const config = {
   "clientVersion": "7.1.0",
   "engineVersion": "ab635e6b9d606fa5c8fb8b1a7f909c3c3c1c98ba",
   "activeProvider": "postgresql",
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nmodel style {\n  id          BigInt    @id @default(autoincrement())\n  nickname    String\n  title       String\n  password    String\n  description String?\n  tags        String[]  @default([])\n  created_at  DateTime  @default(now()) @db.Timestamptz(6)\n  updated_at  DateTime? @updatedAt @db.Timestamptz(6)\n}\n"
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nmodel style {\n  id          BigInt     @id @default(autoincrement())\n  nickname    String\n  title       String\n  password    String\n  description String     @default(\"\")\n  tags        String[]   @default([])\n  created_at  DateTime   @default(now()) @db.Timestamptz(6)\n  updated_at  DateTime?  @updatedAt @db.Timestamptz(6)\n  curations   curation[]\n}\n\nmodel curation {\n  id                BigInt            @id @default(autoincrement())\n  nickname          String\n  content           String            @default(\"\")\n  password          String\n  trendy            Int\n  personality       Int\n  practicality      Int\n  costEffectiveness Int\n  style_id          BigInt\n  style             style             @relation(fields: [style_id], references: [id], onDelete: Cascade)\n  curation_comment  curation_comment?\n}\n\nmodel curation_comment {\n  id         BigInt   @id @default(autoincrement())\n  nickname   String\n  content    String   @default(\"\")\n  password   String\n  curaion_id BigInt   @unique\n  curation   curation @relation(fields: [curaion_id], references: [id], onDelete: Cascade)\n}\n"
 }
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"style\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"BigInt\"},{\"name\":\"nickname\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"tags\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"created_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updated_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"style\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"BigInt\"},{\"name\":\"nickname\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"tags\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"created_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updated_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"curations\",\"kind\":\"object\",\"type\":\"curation\",\"relationName\":\"curationTostyle\"}],\"dbName\":null},\"curation\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"BigInt\"},{\"name\":\"nickname\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"content\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"trendy\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"personality\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"practicality\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"costEffectiveness\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"style_id\",\"kind\":\"scalar\",\"type\":\"BigInt\"},{\"name\":\"style\",\"kind\":\"object\",\"type\":\"style\",\"relationName\":\"curationTostyle\"},{\"name\":\"curation_comment\",\"kind\":\"object\",\"type\":\"curation_comment\",\"relationName\":\"curationTocuration_comment\"}],\"dbName\":null},\"curation_comment\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"BigInt\"},{\"name\":\"nickname\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"content\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"curaion_id\",\"kind\":\"scalar\",\"type\":\"BigInt\"},{\"name\":\"curation\",\"kind\":\"object\",\"type\":\"curation\",\"relationName\":\"curationTocuration_comment\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.compilerWasm = {
       getRuntime: async () => require('./query_compiler_bg.js'),
