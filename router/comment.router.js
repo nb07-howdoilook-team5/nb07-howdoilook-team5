@@ -1,9 +1,12 @@
 import { Router } from "express";
 import commentController from "../controller/comment.controller.js";
-
+import withErrorHandler from "../utils/asyncHandler.js";
 const router = new Router();
 
-router.put("/:curationId", commentController.putComment);
-router.delete("/:curationId", commentController.deleteComment);
+router.post("/", withErrorHandler(commentController.postComment));
+
+router.put("/:commentId", withErrorHandler(commentController.putComment));
+
+router.delete("/:commentId", withErrorHandler(commentController.deleteComment));
 
 export default router;
