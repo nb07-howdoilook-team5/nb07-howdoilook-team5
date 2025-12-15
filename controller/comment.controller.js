@@ -1,6 +1,6 @@
 import { CommentFormInput, CommentDeleteFormInput } from "./models.js";
-import { prisma, throwHttpError } from "../repository/prisma/prisma.js";
 import { CurationComment } from "../domain/comment.js";
+import { curationCommentRepository } from "../repository/comment.repository.js";
 
 const validatePostComment = (req) => {
   const { curationId } = req.params;
@@ -33,13 +33,14 @@ const validateDeleteComment = (req) => {
 
 class CommentController {
   postComment = async (req, res) => {
-    const { curationId, content, password } = validatePostComment(req);
-    const newEntity = await throwHttpError(prisma.comment.create, {
-      data: {
-        content,
-        password,
-        curation_id: curationId,
-      },
+    const { curationId, nickname, content, password } =
+      validatePostComment(req);
+
+    const newEntity = await curationCommentRepository.create({
+      curationId,
+      nickname,
+      content,
+      password,
     });
 
     res.status(201).json(CurationComment.fromEntity(newEntity));
@@ -47,13 +48,10 @@ class CommentController {
 
   putComment = async (req, res) => {
     const { commentId, password, data } = validatePutComment(req);
-    const updatedEntity = await throwHttpError(prisma.comment.update, {
-      where: {
-        id_password: {
-          id: commentId,
-          password,
-        },
-      },
+
+    const updatedEntity = await curationCommentRepository.update({
+      commentId,
+      password,
       data,
     });
 
@@ -62,13 +60,10 @@ class CommentController {
 
   deleteComment = async (req, res) => {
     const { commentId, password } = validateDeleteComment(req);
-    await throwHttpError(prisma.comment.delete, {
-      where: {
-        id_password: {
-          id: commentId,
-          password,
-        },
-      },
+
+    await curationCommentRepository.delete({
+      commentId,
+      password,
     });
 
     res.status(200).json({ message: "답글을 삭제하였습니다." });
