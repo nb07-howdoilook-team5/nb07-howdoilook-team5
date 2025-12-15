@@ -4,7 +4,7 @@ import {
   PaginationResponse,
   Curation,
 } from "./models";
-import { curationRepository } from "../repository/curation.repository.js";
+import * as curationRepository from "../repository/curation.repository.js";
 import {
   BadRequestError,
   ForbiddenError,
@@ -72,21 +72,21 @@ class CurationController {
 
   deleteCuration = async (req, res, next) => {
     const { curationId, password } = validateDeleteCuration(req);
-    await curationRepository.delete(curationId, password);
+    await curationRepository.remove(curationId, password);
     res.status(200).json({ message: "큐레이팅을 삭제하였습니다." });
   };
 
   getCurations = async (req, res, next) => {
     const { styleId, page, searchBy, keyword } = validateGetCurations(req);
     const pageSize = 5;
-    const where = { style_id: styleId };
-    if (keyword) {
-      if (searchBy === "nickname") where.nickname = { contains: keyword };
-      else if (searchBy === "content") where.content = { contains: keyword };
-    }
     const skip = (page - 1) * pageSize;
-    const { totalItemCount, entities } =
-      await curationRepository.findManyAndCount(where, pageSize, skip);
+    const { totalItemCount, entities } = await curationRepository.list(
+      styleId,
+      searchBy,
+      keyword,
+      pageSize,
+      skip
+    );
     const totalPages = Math.ceil(totalItemCount / pageSize);
     const data = entities.map((entity) => Curation.fromEntity(entity));
 
