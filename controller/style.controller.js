@@ -148,7 +148,7 @@ class StyleController {
   };
   deleteStyle = async (req, res, next) => {
     const { styleId, password } = validateDeleteStyle(req);
-    const deleteresult = await throwHttpError(prisma.style.delete, {
+    await throwHttpError(prisma.style.delete, {
       where: {
         id: styleId,
         password: password,
