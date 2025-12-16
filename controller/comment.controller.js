@@ -1,27 +1,74 @@
-import { Prisma } from "@prisma/client/extension";
-import { CurationDeleteFormInput, CurationFormInput } from "./models.js";
-import { prisma, throwHttpError } from "../repository/prisma/prisma.js";
+import { CommentFormInput, CommentDeleteFormInput } from "./models.js";
 import { CurationComment } from "../domain/comment.js";
+import { curationCommentRepository } from "../repository/comment.repository.js";
 
-const validatePostComment = (req) => ({
-  ...CurationFormInput.parse(req.body),
-  curation_id: req.params.curationId,
-});
+const validatePostComment = (req) => {
+  const { curationId } = req.params;
+  const body = CommentFormInput.parse(req.body);
+  return {
+    curationId,
+    ...body,
+  };
+};
+
+const validatePutComment = (req) => {
+  const { commentId } = req.params;
+  const body = CommentFormInput.parse(req.body);
+  const { password, ...data } = body;
+  return {
+    commentId,
+    password,
+    data,
+  };
+};
+
+const validateDeleteComment = (req) => {
+  const { commentId } = req.params;
+  const body = CommentDeleteFormInput.parse(req.body);
+  return {
+    commentId,
+    password: body.password,
+  };
+};
 
 class CommentController {
-  postComment = (req, res, next) =>
-    Promise.resolve(validatePostComment(req))
-      .then((validatedData) =>
-        throwHttpError(prisma.comment.create, { data: validatedData })
-      )
-      .then((newEntity) =>
-        res.status(201).json(CurationComment.fromEntity(newEntity))
-      );
+  postComment = async (req, res) => {
+    const { curationId, nickname, content, password } =
+      validatePostComment(req);
 
-  putComment(req, res, next) {}
-  deleteComment(req, res, next) {}
+    const newEntity = await curationCommentRepository.create({
+      curationId,
+      nickname,
+      content,
+      password,
+    });
+
+    res.status(201).json(CurationComment.fromEntity(newEntity));
+  };
+
+  putComment = async (req, res) => {
+    const { commentId, password, data } = validatePutComment(req);
+
+    const updatedEntity = await curationCommentRepository.update({
+      commentId,
+      password,
+      data,
+    });
+
+    res.status(200).json(CurationComment.fromEntity(updatedEntity));
+  };
+
+  deleteComment = async (req, res) => {
+    const { commentId, password } = validateDeleteComment(req);
+
+    await curationCommentRepository.delete({
+      commentId,
+      password,
+    });
+
+    res.status(200).json({ message: "답글을 삭제하였습니다." });
+  };
 }
 
 const controller = new CommentController();
-
 export default controller;
