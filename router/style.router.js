@@ -1,14 +1,23 @@
 import { Router } from "express";
+import curationController from "../controller/curation.controller.js";
 import commentController from "../controller/comment.controller.js";
 import styleController from "../controller/style.controller.js";
+import withErrorHandler from "../utils/asyncHandler.js";
+
 const router = new Router();
 
-router.post("/styles/:styleId/curations", curationHandler.postCuration);
-router.get("/styles/:styleId/curations", curationHandler.getCurations);
-router.post("/styles", styleHandler.postStyle);
-router.get("/styles/:styleId", styleHandler.getStyle);
-router.put("/styles/:styleId", styleHandler.putStyle);
-router.delete("/styles/:styleId", styleHandler.deleteStyle);
-router.get("/styles", styleHandler.getGalleryStyles);
+router.post(
+  "/:styleId/curations",
+  withErrorHandler(curationController.postCuration)
+);
+router.get(
+  "/:styleId/curations",
+  withErrorHandler(curationController.getCurations)
+);
+router.post("/", withErrorHandler(styleController.postStyle));
+router.get("/:styleId", withErrorHandler(styleController.getStyle));
+router.put("/:styleId", withErrorHandler(styleController.putStyle));
+router.delete("/:styleId", withErrorHandler(styleController.deleteStyle));
+router.get("/", withErrorHandler(styleController.getGalleryStyles));
 
 export default router;
