@@ -49,7 +49,13 @@ export const GalleryStylesSearchParamsSchema = z.object({
   searchBy: SearchByStyleSchema.optional(),
   keyword: z.string().optional(),
   tag: z.string().optional(),
-  page: z.string().optional(),
+  page: z
+    .string() // 처음에 문자로 들어올텐데
+    .nonempty("page는 빈 문자열일 수 없습니다.") // 꼭 있어야 하고
+    .preprocess(
+      (a) => parseInt(a) ?? a, // 숫자로 변환해봐서 성공이면 숫자, NaN이면 그냥 원래 스트링을 반환
+      z.number().int("정수여야 합니다.").min(1, "1 이상이어야 합니다.") // 여기에 default값 설정 가능
+    ),
 });
 
 export class RankingStylesSearchParams {

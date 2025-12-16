@@ -13,26 +13,11 @@ import { Style } from "../domain/style.js";
 const validatePostStyle = (req) => {
   return StyleFormInput.parse(req.body);
 };
-const validateGetStyles = (req) => {
-  const { styleId } = req.params;
-  const {
-    page = 1,
-    limit = 12,
-    searchBy,
-    keyword,
-    tag,
-    sortBy,
-  } = GalleryStylesSearchParamsSchema(req.query);
-  return {
-    styleId,
-    page: parseInt(page),
-    limit: parseInt(limit),
-    searchBy,
-    keyword,
-    tag,
-    sortBy,
-  };
-};
+
+const validateGetStyles = (req) => ({
+  styleId: req.params.styleId,
+  ...GalleryStylesSearchParamsSchema.parse(req.query),
+});
 
 const validateGetStyle = (req) => {
   const { id } = req.params; // <-- id는 여기서 가져오는 것이 맞습니다.
@@ -84,8 +69,10 @@ class StyleController {
   };
 
   getGalleryStyles = async (req, res, next) => {
-    const { styleId, page, limit, searchBy, keyword, tag, sortBy } =
+    const { styleId, page, searchBy, keyword, tag, sortBy } =
       validateGetStyles(req);
+
+    const limit = 12;
     const skip = (parseInt(page) - 1) * limit;
     const take = parseInt(limit);
 
