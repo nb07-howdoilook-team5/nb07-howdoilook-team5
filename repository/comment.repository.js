@@ -16,7 +16,7 @@ export const update = (commentId, password, data) =>
     data,
   });
 
-export const delete = (commentId, password) =>
+export const remove = (commentId, password) =>
   throwHttpError(prisma.curationComment.delete, {
     where: {
       id_password: { id: commentId, password },
