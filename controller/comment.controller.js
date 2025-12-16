@@ -1,6 +1,6 @@
 import { CommentFormInput, CommentDeleteFormInput } from "./models.js";
 import { CurationComment } from "../domain/comment.js";
-import { curationCommentRepository } from "../repository/comment.repository.js";
+import * as commentRepository from "../repository/comment.repository.js";
 
 const validatePostComment = (req) => {
   const { curationId } = req.params;
@@ -36,7 +36,7 @@ class CommentController {
     const { curationId, nickname, content, password } =
       validatePostComment(req);
 
-    const newEntity = await curationCommentRepository.create({
+    const newEntity = await commentRepository.create({
       curationId,
       nickname,
       content,
@@ -49,7 +49,7 @@ class CommentController {
   putComment = async (req, res) => {
     const { commentId, password, data } = validatePutComment(req);
 
-    const updatedEntity = await curationCommentRepository.update({
+    const updatedEntity = await commentRepository.update({
       commentId,
       password,
       data,
@@ -61,7 +61,7 @@ class CommentController {
   deleteComment = async (req, res) => {
     const { commentId, password } = validateDeleteComment(req);
 
-    await curationCommentRepository.delete({
+    await commentRepository.remove({
       commentId,
       password,
     });
