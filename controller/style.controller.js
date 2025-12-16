@@ -5,19 +5,24 @@ import {
   PaginationResponse,
   StyleDetail,
   GalleryStyle,
+  GalleryStylesSearchParamsSchema,
 } from "./models.js";
 import { prisma, throwHttpError } from "../repository/prisma/prisma.js";
 import { Style } from "../domain/style.js";
 
 const validatePostStyle = (req) => {
-  const body = StyleFormInput.parse(req.body);
-  return {
-    ...body,
-  };
+  return StyleFormInput.parse(req.body);
 };
 const validateGetStyles = (req) => {
   const { styleId } = req.params;
-  const { page = 1, limit = 12, searchBy, keyword, tag, sortBy } = req.query;
+  const {
+    page = 1,
+    limit = 12,
+    searchBy,
+    keyword,
+    tag,
+    sortBy,
+  } = GalleryStylesSearchParamsSchema(req.query);
   return {
     styleId,
     page: parseInt(page),
@@ -77,6 +82,7 @@ class StyleController {
     );
     res.status(201).json(Style.fromEntity(updatedEntity));
   };
+
   getGalleryStyles = async (req, res, next) => {
     const { styleId, page, limit, searchBy, keyword, tag, sortBy } =
       validateGetStyles(req);
@@ -101,14 +107,12 @@ class StyleController {
           where.title = { contains: keyword };
           break;
         case searchByStyletag:
-          where.tag = { contains: keyword };
+          const keywordArray = keyword.split(",").map((item) => item.trim());
+          where.tags = { hasSome: keywordArray };
           break;
         default:
           throw new InternalServerError(`Invalid searchBy: ${searchBy}`);
       }
-    }
-    if (tag) {
-      where.tag = { contains: tag };
     }
 
     const orderByArr = [];
@@ -121,9 +125,7 @@ class StyleController {
     }
 
     // 정렬 조건이 없을 경우 기본 정렬 추가 (예: 최신순)
-    if (orderByArr.length === 0) {
-      orderByArr.push({ id: "asc" }); // 또는 { createdAt: "desc" }
-    }
+    orderByArr.push({ id: "asc" }); // 또는 { createdAt: "desc" }
     const [totalItemCount, entities] = await Promise.all([
       prisma.style.count({ where }),
       prisma.style.findMany({
@@ -139,6 +141,7 @@ class StyleController {
       .status(200)
       .json(new PaginationResponse(page, totalPages, totalItemCount, data));
   };
+
   getStyle = async (req, res, next) => {
     const { styleId } = validateGetStyle(req);
     const getEntity = await throwHttpError(prisma.style.findUnique, {
@@ -146,6 +149,7 @@ class StyleController {
     });
     res.status(200).json(Style.fromEntity(getEntity));
   };
+
   deleteStyle = async (req, res, next) => {
     const { styleId, password } = validateDeleteStyle(req);
     await throwHttpError(prisma.style.delete, {

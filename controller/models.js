@@ -30,21 +30,27 @@ const rankBycostEffectiveness = "costEffectiveness";
 // StyleComponent
 
 // SearchParams
-export class GalleryStylesSearchParams {
-  constructor(
-    sortBy, //: SortBy
-    searchBy, //: SearchByStyle
-    keyword,
-    tag,
-    page //?
-  ) {
-    this.sortBy = sortBy;
-    this.searchBy = searchBy;
-    this.keyword = keyword;
-    this.tag = tag;
-    this.page = page;
-  }
-}
+
+export const SortBySchema = z.union([
+  z.literal("latest"),
+  z.literal("mostViewed"),
+  z.literal("mostCurated"),
+]);
+
+export const SearchByStyleSchema = z.union([
+  z.literal("nickname"),
+  z.literal("description"),
+  z.literal("title"),
+  z.literal("tag"),
+]);
+
+export const GalleryStylesSearchParamsSchema = z.object({
+  sortBy: SortBySchema.optional(),
+  searchBy: SearchByStyleSchema.optional(),
+  keyword: z.string().optional(),
+  tag: z.string().optional(),
+  page: z.string().optional(),
+});
 
 export class RankingStylesSearchParams {
   constructor(
