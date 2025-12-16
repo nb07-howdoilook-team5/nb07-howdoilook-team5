@@ -16,6 +16,7 @@ const validatePostStyle = (req) => {
 
 const validateGetStyles = (req) => ({
   styleId: req.params.styleId,
+  limit: 12,
   ...GalleryStylesSearchParamsSchema.parse(req.query),
 });
 
@@ -69,10 +70,8 @@ class StyleController {
   };
 
   getGalleryStyles = async (req, res, next) => {
-    const { styleId, page, searchBy, keyword, tag, sortBy } =
-      validateGetStyles(req);
+    const { page, searchBy, keyword, sortBy, limit } = validateGetStyles(req);
 
-    const limit = 12;
     const skip = (parseInt(page) - 1) * limit;
     const take = parseInt(limit);
 
