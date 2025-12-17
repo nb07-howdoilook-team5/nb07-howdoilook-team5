@@ -277,10 +277,24 @@ export const CurationDeleteFormInput = z.object({
 });
 
 export const CommentFormInput = z.object({
-  content: z.string(),
-  password: z.string(),
+  content: z
+    .string({
+      required_error: "필수 입력사항입니다.",
+    })
+    .min(1)
+    .max(150, { message: "150자 이내로 입력해 주세요" }),
+
+  password: z
+    .string({ required_error: "필수 입력사항입니다." })
+    .regex(/^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{8,16}$/, {
+      message: "영문, 숫자 조합 8~16자리로 입력해주세요.",
+    }),
 });
 
 export const CommentDeleteFormInput = z.object({
-  password: z.string(),
+  password: z
+    .string({ required_error: "필수 입력사항입니다." })
+    .regex(/^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{8,16}$/, {
+      message: "영문, 숫자 조합 8~16자리로 입력해주세요.",
+    }),
 });
