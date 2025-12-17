@@ -27,7 +27,7 @@ export const detail = (styleId) =>
     where: { id: styleId },
   });
 
-export const list = (styleId, page, searchBy, keyword, tag, sortBy) => {
+export const list = (page, searchBy, keyword, sortBy) => {
   const where = {};
   const searchByStylenickname = "nickname";
   const searchByStyletitle = "title";

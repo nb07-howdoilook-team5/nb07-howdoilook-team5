@@ -63,15 +63,13 @@ class StyleController {
   };
 
   getGalleryStyles = async (req, res, next) => {
-    const { styleId, page, searchBy, keyword, tag, sortBy } =
-      validateGetStyles(req);
+    const { page, searchBy, keyword, sortBy } = validateGetStyles(req);
 
     const limit = 12;
     const skip = (parseInt(page) - 1) * limit;
     const take = parseInt(limit);
 
     const [totalItemCount, entities] = await styleRepository.list(
-      styleId,
       searchBy,
       keyword,
       sortBy,
