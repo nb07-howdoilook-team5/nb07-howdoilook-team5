@@ -21,6 +21,9 @@ app.get("/", (req, res) => {
   });
 });
 
+app.use("/", router);
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+
 // 에러핸들링 미들웨어
 app.use(errorHandler);
 
