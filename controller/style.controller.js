@@ -7,7 +7,7 @@ import {
   GalleryStyle,
   GalleryStylesSearchParamsSchema,
 } from "./models.js";
-import { prisma, throwHttpError } from "../repository/prisma/prisma.js";
+import * as styleRepository from "../repository/style.repository.js";
 import { Style } from "../domain/style.js";
 
 const validatePostStyle = (req) => {
@@ -49,78 +49,33 @@ const validateDeleteStyle = (req) => {
 class StyleController {
   postStyle = async (req, res, next) => {
     const validatedData = validatePostStyle(req);
-    const newEntity = await throwHttpError(
-      prisma.style.create({ data: validatedData })
-    );
+    const newEntity = await styleRepository.create(validatedData);
     res.status(201).json(Style.fromEntity(newEntity));
   };
 
   putStyle = async (req, res, next) => {
     const { styleId, password, ...updatedData } = validateUpdateStyle(req);
-    const updatedEntity = await throwHttpError(
-      prisma.style.update({
-        where: {
-          id: styleId,
-          password: password,
-        },
-        data: updatedData,
-      })
+    const updatedEntity = await styleRepository.update(
+      styleId,
+      password,
+      updatedData
     );
     res.status(201).json(Style.fromEntity(updatedEntity));
   };
 
   getGalleryStyles = async (req, res, next) => {
-    const { page, searchBy, keyword, sortBy, limit } = validateGetStyles(req);
+    const { page, searchBy, keyword, sortBy } = validateGetStyles(req);
 
     const skip = (parseInt(page) - 1) * limit;
     const take = parseInt(limit);
 
-    const where = {};
-    const searchByStylenickname = "nickname";
-    const searchByStyletitle = "title";
-    const searchByStylecontent = "content";
-    const searchByStyletag = "tag";
-
-    if (keyword) {
-      switch (searchBy) {
-        case searchByStylenickname:
-          where.nickname = { contains: keyword };
-          break;
-        case searchByStylecontent:
-          where.description = { contains: keyword };
-          break;
-        case searchByStyletitle:
-          where.title = { contains: keyword };
-          break;
-        case searchByStyletag:
-          const keywordArray = keyword.split(",").map((item) => item.trim());
-          where.tags = { hasSome: keywordArray };
-          break;
-        default:
-          throw new InternalServerError(`Invalid searchBy: ${searchBy}`);
-      }
-    }
-
-    const orderByArr = [];
-    if (sortBy === "latest") {
-      orderByArr.push({ createdAt: "desc" });
-    } else if (sortBy === "mostViewed") {
-      orderByArr.push({ viewCount: "desc" });
-    } else if (sortBy === "mostCurated") {
-      orderByArr.push({ mostCurated: "desc" });
-    }
-
-    // 정렬 조건이 없을 경우 기본 정렬 추가 (예: 최신순)
-    orderByArr.push({ id: "asc" }); // 또는 { createdAt: "desc" }
-    const [totalItemCount, entities] = await Promise.all([
-      prisma.style.count({ where }),
-      prisma.style.findMany({
-        where,
-        take,
-        skip,
-        orderBy: orderByArr, // <-- 동적으로 생성한 orderByArr 사용
-      }),
-    ]);
+    const [totalItemCount, entities] = await styleRepository.list(
+      searchBy,
+      keyword,
+      sortBy,
+      skip,
+      take
+    );
     const totalPages = Math.ceil(totalItemCount / limit);
     const data = entities.map((entity) => Style.fromEntity(entity));
     res
@@ -130,20 +85,13 @@ class StyleController {
 
   getStyle = async (req, res, next) => {
     const { styleId } = validateGetStyle(req);
-    const getEntity = await throwHttpError(prisma.style.findUnique, {
-      where: { id: styleId },
-    });
+    const getEntity = await styleRepository.detail(styleId);
     res.status(200).json(Style.fromEntity(getEntity));
   };
 
   deleteStyle = async (req, res, next) => {
     const { styleId, password } = validateDeleteStyle(req);
-    await throwHttpError(prisma.style.delete, {
-      where: {
-        id: styleId,
-        password: password,
-      },
-    });
+    await styleRepository.remove(styleId, password);
     res.status(200).json({ message: "스타일 삭제 완료하였습니다." });
   };
 }
