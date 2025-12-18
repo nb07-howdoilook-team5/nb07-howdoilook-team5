@@ -5,17 +5,14 @@ export const create = (createData) =>
     data: {
       ...createData,
       style: { connect: { id: createData.style_id } },
-      view_count: 0,
-    },
-    include: {
-      style: { select: { id: true, title: true } },
     },
   });
 
 export const update = (curationId, password, updateData) =>
   throwHttpError(prisma.curation.update, {
     where: {
-      id_password: { id: curationId, password: password },
+      id: curationId,
+      password: password,
     },
     data: updateData,
   });
@@ -23,7 +20,8 @@ export const update = (curationId, password, updateData) =>
 export const remove = (curationId, password) =>
   throwHttpError(prisma.curation.delete, {
     where: {
-      id_password: { id: curationId, password: password },
+      id: curationId,
+      password: password,
     },
   });
 
