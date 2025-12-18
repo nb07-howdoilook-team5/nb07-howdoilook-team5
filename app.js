@@ -13,7 +13,14 @@ app.use(cors());
 app.get("/", (req, res) => {
   res.json({
     message: "RESTful API server",
-    endpoints: ["/", "/"],
+    endpoints: [
+      "/styles",
+      "/curations",
+      "/comments",
+      "/images",
+      "/tags",
+      "/ranking",
+    ],
   });
 });
 
