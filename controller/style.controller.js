@@ -1,11 +1,12 @@
 import { Prisma } from "@prisma/client/extension";
 import {
-  StyleDeleteFormInput,
   StyleFormInput,
+  StyleDeleteFormInput,
   PaginationResponse,
-  StyleDetail,
-  GalleryStyle,
   GalleryStylesSearchParamsSchema,
+  RankingStylesSearchParamsSchema,
+  Style,
+  RankingStyle,
 } from "./models.js";
 import * as styleRepository from "../repository/style.repository.js";
 import { Style } from "../domain/style.js";
@@ -46,6 +47,10 @@ const validateDeleteStyle = (req) => {
   };
 };
 
+const validateGetRankingStyles = (req) => {
+  return RankingStylesSearchParamsSchema.parse(req.query);
+};
+
 class StyleController {
   postStyle = async (req, res, next) => {
     const validatedData = validatePostStyle(req);
@@ -65,19 +70,53 @@ class StyleController {
 
   getGalleryStyles = async (req, res, next) => {
     const { page, searchBy, keyword, sortBy } = validateGetStyles(req);
+    const limit = 12;
 
     const skip = (parseInt(page) - 1) * limit;
-    const take = parseInt(limit);
 
-    const [totalItemCount, entities] = await styleRepository.list(
+    const { totalItemCount, entities } = await styleRepository.list(
       searchBy,
       keyword,
       sortBy,
       skip,
-      take
+      limit
     );
     const totalPages = Math.ceil(totalItemCount / limit);
-    const data = entities.map((entity) => Style.fromEntity(entity));
+    const data = entities.map((entity) => {
+      const curationCount = entity._count ? entity._count.curation : 0;
+      return Style.fromEntity({ ...entity, curationCount });
+    });
+    res
+      .status(200)
+      .json(new PaginationResponse(page, totalPages, totalItemCount, data));
+  };
+
+  getRankingStyles = async (req, res, next) => {
+    const { page, rankBy } = validateGetRankingStyles(req);
+    const limit = 10;
+    const { totalItemCount, entities } = await styleRepository.ranking(
+      rankBy,
+      page,
+      limit
+    );
+
+    const totalPages = Math.ceil(totalItemCount / limit);
+
+    const data = entities.map((entity) => {
+      return new RankingStyle(
+        entity.id.toString(),
+        entity.thumbnail || "", //아직 스키마에 없음
+        entity.tags,
+        entity.title,
+        entity.nickname,
+        entity.viewCount || 0,
+        entity.curationCount,
+        {}, //-> categories
+        entity.rankInfo.ranking,
+        Number(entity.rankInfo.rating).toFixed(1)
+      );
+    });
+
     res
       .status(200)
       .json(new PaginationResponse(page, totalPages, totalItemCount, data));
