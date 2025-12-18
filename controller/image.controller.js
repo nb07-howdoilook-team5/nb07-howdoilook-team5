@@ -9,7 +9,9 @@ const uploadImage = async (req, res) => {
     throw new BadRequestError("이미지 파일만 업로드 가능합니다.");
   }
 
-  const imageUrl = `/uploads/images/styles/${req.file.filename}`;
+  const baseUrl =
+    process.env.BASE_URL || `${req.protocol}://${req.get("host")}`;
+  const imageUrl = `${baseUrl}/images/${req.file.filename}`;
 
   res.status(200).json({ imageUrl });
 };

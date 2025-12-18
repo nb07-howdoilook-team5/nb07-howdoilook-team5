@@ -35,7 +35,7 @@ const upload = multer({
       );
   },
 });
-
+router.use("/", express.static(path.join("uploads", "images", "styles")));
 router.post("/", upload.single("image"), withErrorHandler(uploadImage));
 
 export default router;
