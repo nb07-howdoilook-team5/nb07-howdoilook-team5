@@ -2,10 +2,12 @@ import { Router } from "express";
 import multer from "multer";
 import path from "path";
 import fs from "fs/promises";
-import uploadImage from "../controller/image.controller.js";
+
+import { uploadImage, getImage } from "../controller/image.controller.js";
 import withErrorHandler from "../utils/asyncHandler.js";
 
 const router = new Router();
+
 const upload = multer({
   storage: multer.diskStorage({
     destination: async (req, file, cb) => {
@@ -35,7 +37,7 @@ const upload = multer({
       );
   },
 });
-router.use("/", express.static(path.join("uploads", "images", "styles")));
 router.post("/", upload.single("image"), withErrorHandler(uploadImage));
+router.get("/:fileName", withErrorHandler(getImage));
 
 export default router;

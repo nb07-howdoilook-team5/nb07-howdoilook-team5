@@ -1,6 +1,8 @@
 import { BadRequestError } from "../error/errors.js";
+import path from "path";
+import fs from "fs";
 
-const uploadImage = async (req, res) => {
+export const uploadImage = async (req, res) => {
   if (!req.file) {
     throw new BadRequestError("image 파일이 필요합니다.");
   }
@@ -16,4 +18,20 @@ const uploadImage = async (req, res) => {
   res.status(200).json({ imageUrl });
 };
 
-export default uploadImage;
+export const getImage = async (req, res) => {
+  const { fileName } = req.params;
+
+  const filePath = path.join(
+    process.cwd(),
+    "uploads",
+    "images",
+    "styles",
+    fileName
+  );
+
+  if (!fs.existsSync(filePath)) {
+    throw new BadRequestError("이미지 파일을 찾을 수 없습니다.");
+  }
+
+  res.sendFile(filePath);
+};
