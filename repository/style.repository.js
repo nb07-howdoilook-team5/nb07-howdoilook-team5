@@ -30,14 +30,16 @@ export const remove = (styleId, password) =>
   });
 
 export const detail = (styleId) => {
-  const [style] = prisma.$transaction([
-    prisma.style.findUnique({ where: { id: styleId } }),
-    prisma.style_count.update({
-      where: { id: prisma.style.style_count_id },
-      data: { view_count: { increment: 1 } },
-    }),
-  ]);
-  return style;
+  prisma.style.findUnique({ where: { id: styleId } });
+  const updatedStyle = prisma.style.update({
+    where: { id: styleId },
+    data: {
+      style_count: {
+        view_count: { increment: 1 },
+      },
+    },
+  });
+  return updatedStyle;
 };
 
 export const list = (page, searchBy, keyword, sortBy) => {
