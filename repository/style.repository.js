@@ -2,7 +2,14 @@ import { prisma, throwHttpError } from "./prisma/prisma.js";
 
 export const create = (createData) =>
   throwHttpError(prisma.style.create, {
-    data: { createData },
+    data: {
+      createData,
+      style_count: {
+        create: {
+          view_count: 0,
+        },
+      },
+    },
   });
 
 export const update = (styleId, password, updateData) =>
@@ -22,10 +29,16 @@ export const remove = (styleId, password) =>
     },
   });
 
-export const detail = (styleId) =>
-  throwHttpError(prisma.style.findUnique, {
-    where: { id: styleId },
-  });
+export const detail = (styleId) => {
+  const [style] = prisma.$transaction([
+    prisma.style.findUnique({ where: { id: styleId } }),
+    prisma.style_count.update({
+      where: { id: prisma.style.style_count_id },
+      data: { view_count: { increment: 1 } },
+    }),
+  ]);
+  return style;
+};
 
 export const list = (page, searchBy, keyword, sortBy) => {
   const where = {};
