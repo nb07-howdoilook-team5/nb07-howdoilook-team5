@@ -1,4 +1,4 @@
-import { BadRequestError } from "../errors/errors";
+import { BadRequestError } from "../error/errors.js";
 
 // ## 스타일
 
@@ -47,7 +47,8 @@ export class Style {
     styleComponent,
     description,
     password,
-    createdAt
+    createdAt,
+    curationCount
   ) {
     this.id = id;
     this.tags = tags;
@@ -57,6 +58,7 @@ export class Style {
     this.description = description;
     this.password = password;
     this.createdAt = createdAt;
+    this.curationCount = curationCount;
   }
 
   static fromEntity({
@@ -64,23 +66,38 @@ export class Style {
     tags,
     title,
     nickname,
-    styleComponent,
+    categories,
     description,
     password,
     created_at: createdAt,
+    _count,
   }) {
     // 태그는 최대 3개
     if (tags.length > 3) throw new BadRequestError("태그 너무 많아, 3개까지만");
+    const curationCount = _count ? _count.curation : 0;
+
+    let styleComponentInstances = {};
+    if (categories && categories === "object") {
+      Object.entries(categories).forEach(([key, value]) => {
+        styleComponentInstances[key] = StyleComponent.fromEntity({
+          category: key,
+          clothName: value.name,
+          brandName: value.brand,
+          price: value.price,
+        });
+      });
+    }
 
     return new Style(
       id,
       tags,
       title,
       nickname,
-      styleComponent,
+      styleComponentInstances,
       description,
       password,
-      createdAt
+      createdAt,
+      curationCount
     );
   }
 }

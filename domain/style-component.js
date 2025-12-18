@@ -1,4 +1,4 @@
-import { InternalServerError } from "../error/errors";
+import { InternalServerError } from "../error/errors.js";
 
 // - 스타일 구성의 종류에는 **상의, 하의, 아우터, 원피스, 신발, 가방, 패션잡화**가 있으며, 각 구성마다 의상명, 브랜드명, 가격을 입력할 수 있습니다.
 export class StyleComponent {
@@ -11,26 +11,26 @@ export class StyleComponent {
   static fromEntity({ clothName, brandName, price, category }) {
     switch (category) {
       case STYLE_TOP:
-        new Top(clothName, brandName, price);
-        break;
+        return new Top(clothName, brandName, price);
+
       case STYLE_BOTTOM:
-        new Bottom(clothName, brandName, price);
-        break;
+        return new Bottom(clothName, brandName, price);
+
       case STYLE_OUTER:
-        new Outer(clothName, brandName, price);
-        break;
+        return new Outer(clothName, brandName, price);
+
       case STYLE_DRESS:
-        new Dress(clothName, brandName, price);
-        break;
+        return new Dress(clothName, brandName, price);
+
       case STYLE_SHOES:
-        new Shoes(clothName, brandName, price);
-        break;
+        return new Shoes(clothName, brandName, price);
+
       case STYLE_BAG:
-        new Bag(clothName, brandName, price);
-        break;
+        return new Bag(clothName, brandName, price);
+
       case STYLE_ACCESSORY:
-        new Accessory(clothName, brandName, price);
-        break;
+        return new Accessory(clothName, brandName, price);
+
       default:
         throw new InternalServerError(`Invalid category: ${category}`);
     }

@@ -58,27 +58,29 @@ export const GalleryStylesSearchParamsSchema = z.object({
     ),
 });
 
-export class RankingStylesSearchParams {
-  constructor(
-    rankBy, //: RankBy
-    page
-  ) {
-    this.rankBy = rankBy;
-    this.page = page;
-  }
-}
+export const RankingStylesSearchParamsSchema = z.object({
+  rankBy: z
+    .enum([
+      "total",
+      "trendy",
+      "personality",
+      "practicality",
+      "costEffectiveness",
+    ])
+    .optional()
+    .default("total"),
+  page: z
+    .preprocess((val) => (val ? parseInt(val) : 1), z.number().min(1))
+    .default(1),
+});
 
-export class CurationsSearchParams {
-  constructor(
-    page,
-    searchBy, //: SearchByCuration
-    keyword
-  ) {
-    this.page = page;
-    this.searchBy = searchBy;
-    this.keyword = keyword;
-  }
-}
+export const CurationsSearchParamsSchema = z.object({
+  page: z
+    .preprocess((val) => (val ? parseInt(val) : 1), z.number().min(1))
+    .default(1),
+  searchBy: z.enum(["nickname", "content"]).optional().default("nickname"),
+  keyword: z.string().optional().default(""),
+});
 
 // style - data
 export class GalleryStyle {
@@ -193,25 +195,66 @@ export class Comment {
   }
 }
 
-export class StyleFormInput {
-  constructor(
-    imageUrls, //: string[]
-    tags, //: string[]
-    title,
-    nickname,
-    content,
-    categories, //: {    [key in CategoryKey]?: CategoryValue  }
-    password
-  ) {
-    this.imageUrls = imageUrls;
-    this.tags = tags;
-    this.title = title;
-    this.nickname = nickname;
-    this.content = content;
-    this.categories = categories;
-    this.password = password;
-  }
-}
+const CategoryItemSchema = z.object({
+  name: z
+    .string()
+    .min(1, "의상명을 입력해주세요.")
+    .max(20, "의상명은 20자 이하여야 합니다."),
+  brand: z.string().min(1, "브랜드명을 입력해주세요."),
+  price: z.number().min(0, "가격은 0원 이상이어야 합니다.").default(0),
+});
+
+const AllowedCategoryKeys = z.enum([
+  "top",
+  "bottom",
+  "outer",
+  "dress",
+  "shoes",
+  "bag",
+  "accessory",
+]);
+
+export const StyleFormInput = z.object({
+  imageUrls: z
+    .array(z.string().url("올바른 URL 형식이 아닙니다."))
+    .min(1, "이미지를 등록해주세요"),
+
+  tags: z
+    .array(z.string())
+    .max(3, "태그는 최대 3개까지만 등록 가능합니다.")
+    .optional()
+    .default([]),
+
+  title: z
+    .string()
+    .min(1, "제목을 입력해주세요.")
+    .max(30, "제목은 30자 이내로 입력해주세요."),
+
+  nickname: z
+    .string()
+    .min(1, "닉네임을 입력해주세요.")
+    .max(20, "닉네임은 20자 이내로 입력해주세요."),
+
+  content: z
+    .string()
+    .min(1, "내용을 입력해주세요.")
+    .max(500, "내용은 500자 이내로 입력해주세요."),
+
+  password: z
+    .string()
+    .min(8, "비밀번호는 최소 8자 이상이어야 합니다.")
+    .max(16, "비밀번호는 최대 16자 이내여야 합니다.")
+    .regex(
+      /^(?=.*[a-zA-Z])(?=.*[0-9]).{8,16}$/,
+      "비밀번호는 영문, 숫자 조합 8~16자리여야 합니다."
+    ),
+
+  categories: z
+    .record(AllowedCategoryKeys, CategoryItemSchema)
+    .refine((data) => Object.keys(data).length > 0, {
+      message: "최소 하나 이상의 스타일 구성요소를 입력해야 합니다.",
+    }),
+});
 
 export class StyleDeleteFormInput {
   constructor(password) {
@@ -265,7 +308,7 @@ export const CurationFormInput = z.object({
       required_error: "비밀번호를 입력해야 합니다.",
     })
     .min(8, "비밀번호는 최소 8자 이상이어야 합니다.")
-    .max(16, "비밀번호는 최대 16자까지 가능합니다.")
+    .max(16, "비밀번호는 최대 16자 이내여야 합니다.")
     .regex(
       /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{8,16}$/,
       "비밀번호는 영문, 숫자 조합 8~16자리여야 합니다."
