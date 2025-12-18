@@ -1,4 +1,3 @@
-import { Prisma } from "@prisma/client/extension";
 import {
   StyleFormInput,
   StyleDeleteFormInput,
@@ -9,16 +8,12 @@ import {
   RankingStyle,
 } from "./models.js";
 import * as styleRepository from "../repository/style.repository.js";
-import { Style } from "../domain/style.js";
 
-const validatePostStyle = (req) => {
-  return StyleFormInput.parse(req.body);
-};
+const validatePostStyle = (req) => StyleFormInput.parse(req.body);
 
 const validateGetStyles = (req) => ({
-  styleId: req.params.styleId,
-  limit: 12,
   ...GalleryStylesSearchParamsSchema.parse(req.query),
+  limit: 12,
 });
 
 const validateGetStyle = (req) => {
@@ -28,105 +23,80 @@ const validateGetStyle = (req) => {
   };
 };
 const validateUpdateStyle = (req) => {
-  const { id } = req.params;
   const body = StyleFormInput.parse(req.body);
   const { password, ...data } = body;
-  return {
-    id,
-    password,
-    data,
-  };
+  return { styleId: req.params.id, password, data };
 };
 
-const validateDeleteStyle = (req) => {
-  const { id } = req.params;
-  const body = StyleDeleteFormInput.parse(req.body);
-  return {
-    id,
-    password: body.password,
-  };
-};
+const validateDeleteStyle = (req) => ({
+  styleId: req.params.id,
+  password: StyleDeleteFormInput.parse(req.body).password,
+});
 
-const validateGetRankingStyles = (req) => {
-  return RankingStylesSearchParamsSchema.parse(req.query);
-};
+const validateGetRankingStyles = (req) =>
+  RankingStylesSearchParamsSchema.parse(req.query);
 
 class StyleController {
   postStyle = async (req, res, next) => {
     const validatedData = validatePostStyle(req);
-    const newEntity = await styleRepository.create(validatedData);
-    res.status(201).json(Style.fromEntity(newEntity));
+    const registeredStyle = await styleRepository.create(validatedData);
+    res.status(201).json(registeredStyle);
   };
 
   putStyle = async (req, res, next) => {
-    const { styleId, password, ...updatedData } = validateUpdateStyle(req);
-    const updatedEntity = await styleRepository.update(
-      styleId,
-      password,
-      updatedData
-    );
-    res.status(201).json(Style.fromEntity(updatedEntity));
+    const { styleId, password, data } = validateUpdateStyle(req);
+    const updated = await styleRepository.update(styleId, password, data);
+    res.status(201).json(updated);
   };
 
   getGalleryStyles = async (req, res, next) => {
-    const { page, searchBy, keyword, sortBy } = validateGetStyles(req);
-    const limit = 12;
+    const { page, searchBy, keyword, sortBy, limit } = validateGetStyles(req);
+    const skip = (page - 1) * limit;
 
-    const skip = (parseInt(page) - 1) * limit;
-
-    const { totalItemCount, entities } = await styleRepository.list(
+    const { totalItemCount, styles } = await styleRepository.list(
       searchBy,
       keyword,
       sortBy,
       skip,
       limit
     );
-    const totalPages = Math.ceil(totalItemCount / limit);
-    const data = entities.map((entity) => {
-      const curationCount = entity._count ? entity._count.curation : 0;
-      return Style.fromEntity({ ...entity, curationCount });
-    });
     res
       .status(200)
-      .json(new PaginationResponse(page, totalPages, totalItemCount, data));
+      .json(
+        new PaginationResponse(
+          page,
+          Math.ceil(totalItemCount / limit),
+          totalItemCount,
+          styles
+        )
+      );
   };
 
   getRankingStyles = async (req, res, next) => {
     const { page, rankBy } = validateGetRankingStyles(req);
     const limit = 10;
-    const { totalItemCount, entities } = await styleRepository.ranking(
+    const { totalItemCount, rankedStyles } = await styleRepository.ranking(
       rankBy,
       page,
       limit
     );
 
-    const totalPages = Math.ceil(totalItemCount / limit);
-
-    const data = entities.map((entity) => {
-      return new RankingStyle(
-        entity.id.toString(),
-        entity.thumbnail || "", //아직 스키마에 없음
-        entity.tags,
-        entity.title,
-        entity.nickname,
-        entity.viewCount || 0,
-        entity.curationCount,
-        {}, //-> categories
-        entity.rankInfo.ranking,
-        Number(entity.rankInfo.rating).toFixed(1)
-      );
-    });
-
     res
       .status(200)
-      .json(new PaginationResponse(page, totalPages, totalItemCount, data));
+      .json(
+        new PaginationResponse(
+          page,
+          Math.ceil(totalItemCount / limit),
+          totalItemCount,
+          rankedStyles
+        )
+      );
   };
 
-  getStyle = async (req, res, next) => {
-    const { styleId } = validateGetStyle(req);
-    const getEntity = await styleRepository.detail(styleId);
-    res.status(200).json(Style.fromEntity(getEntity));
-  };
+  getStyle = (req, res, next) =>
+    Promise.resolve(validateGetStyle(req))
+      .then(({ styleId }) => styleRepository.detail(styleId))
+      .then((i) => res.status(200).json(i));
 
   deleteStyle = async (req, res, next) => {
     const { styleId, password } = validateDeleteStyle(req);
@@ -134,7 +104,6 @@ class StyleController {
     res.status(200).json({ message: "스타일 삭제 완료하였습니다." });
   };
 }
-
 const controller = new StyleController();
 
 export default controller;

@@ -1,9 +1,11 @@
+import { Style } from "../domain/style.js";
 import { prisma, throwHttpError } from "./prisma/prisma.js";
+import { RankingStyle } from "../controller/models.js";
 
 export const create = (createData) =>
   throwHttpError(prisma.style.create, {
-    data: { createData },
-  });
+    data: createData,
+  }).then(Style.fromEntity);
 
 export const update = (styleId, password, updateData) =>
   throwHttpError(prisma.style.update, {
@@ -12,7 +14,7 @@ export const update = (styleId, password, updateData) =>
       password: password,
     },
     data: updateData,
-  });
+  }).then(Style.fromEntity);
 
 export const remove = (styleId, password) =>
   throwHttpError(prisma.style.delete, {
@@ -20,13 +22,13 @@ export const remove = (styleId, password) =>
       id: styleId,
       password: password,
     },
-  });
+  }).then(Style.fromEntity);
 
 export const detail = (styleId) =>
   throwHttpError(prisma.style.findUnique, {
     where: { id: styleId },
-    include: { _count: { select: { curation: true } } },
-  });
+    include: { _count: { curations: true } },
+  }).then(Style.fromEntity);
 
 export const list = (searchBy, keyword, sortBy, skip, limit) => {
   const where = {};
@@ -77,13 +79,15 @@ export const list = (searchBy, keyword, sortBy, skip, limit) => {
         orderBy: orderByArr,
         include: {
           _count: {
-            select: { curations: true },
-            orderBy: { created_at: "desc" },
+            curations: true,
           },
         },
       }),
     ])
-    .then(([totalItemCount, entities]) => ({ totalItemCount, entities }));
+    .then(([totalItemCount, entities]) => ({
+      totalItemCount,
+      styles: entities.map(Style.fromEntity),
+    }));
 };
 
 export const ranking = async (rankBy, page, take) => {
@@ -130,16 +134,13 @@ export const ranking = async (rankBy, page, take) => {
       styleId: agg.style_id,
       score: score,
       curationCount: agg._count._all,
-      rankInfo: {
-        ranking: 0,
-        rating: score,
-      },
     };
   });
   scoredStyles.sort((a, b) => b.score - a.score);
   const totalItemCount = scoredStyles.length;
   const startIndex = (page - 1) * take;
   const pagedItems = scoredStyles.slice(startIndex, startIndex + take);
+
   const styleIds = pagedItems.map((item) => item.styleId);
   const styles = await prisma.style.findMany({
     where: {
@@ -149,21 +150,26 @@ export const ranking = async (rankBy, page, take) => {
     },
   });
   const styleMap = new Map(styles.map((s) => [s.id.toString(), s]));
+
   const result = pagedItems
     .map((item, index) => {
-      const styleEntity = styleMap.get(item.style_id.toString());
-      if (!styleEntity) return null;
+      const entity = styleMap.get(item.styleId.toString());
+      if (!entity) return null;
 
-      return {
-        ...styleEntity,
-        curationCount: item.curationCount,
-        rankInfo: {
-          ranking: startIndex + index + 1,
-          rating: item.score,
-        },
-      };
+      return new RankingStyle(
+        entity.id.toString(),
+        entity.image_urls?.[0] || "",
+        entity.tags,
+        entity.title,
+        entity.nickname,
+        entity.viewCount || 0,
+        item.curationCount,
+        entity.categories || {},
+        startIndex + index + 1,
+        Number(item.score).toFixed(1)
+      );
     })
     .filter(Boolean);
 
-  return { totalItemCount, entities: result };
+  return { totalItemCount, rankedStyles: result };
 };

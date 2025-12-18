@@ -74,7 +74,7 @@ export class Style {
   }) {
     // 태그는 최대 3개
     if (tags.length > 3) throw new BadRequestError("태그 너무 많아, 3개까지만");
-    const curationCount = _count ? _count.curation : 0;
+    const curationCount = _count ? _count.curations : 0;
 
     let styleComponentInstances = {};
     if (categories && categories === "object") {

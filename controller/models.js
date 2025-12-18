@@ -216,7 +216,7 @@ const AllowedCategoryKeys = z.enum([
 
 export const StyleFormInput = z.object({
   imageUrls: z
-    .array(z.string().url("올바른 URL 형식이 아닙니다."))
+    .array(z.url("올바른 URL 형식이 아닙니다."))
     .min(1, "이미지를 등록해주세요"),
 
   tags: z
