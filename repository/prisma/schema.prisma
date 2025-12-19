@@ -25,7 +25,7 @@ model style{
   updated_at  DateTime? @updatedAt      @db.Timestamptz(6)
   curations   curation[]
   style_count_id   BigInt  @unique
-  style_count	 style_count  @relation(fields: [style_count_id],references: [id],onDelete: Cascade)
+  style_count	 style_count  @relation(fields: [style_count_id],references: [id],onDelete: Cascade,onUpdate: Cascade)
 }
 
 model style_count{
