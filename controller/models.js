@@ -185,27 +185,6 @@ export class StyleDetail {
 }
 
 // curation - data
-export class Curation {
-  constructor(
-    id,
-    nickname,
-    content,
-    trendy,
-    personality,
-    practicality,
-    costEffectiveness,
-    comment //: CommentType | {}
-  ) {
-    this.id = id;
-    this.nickname = nickname;
-    this.content = content;
-    this.trendy = trendy;
-    this.personality = personality;
-    this.practicality = practicality;
-    this.costEffectiveness = costEffectiveness;
-    this.comment = comment;
-  }
-}
 
 export class Comment {
   constructor(id, nickname, content) {

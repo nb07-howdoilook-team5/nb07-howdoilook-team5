@@ -2,10 +2,12 @@ import {
   CurationFormInput,
   CurationDeleteFormInput,
   PaginationResponse,
-  Curation,
   CurationsSearchParamsSchema,
 } from "./models.js";
-import * as curationRepository from "../repository/curation.repository.js";
+import { Curation } from "../domain/curation.js";
+// import * as curationRepository from "../repository/curation.repository.js";
+import * as curationRepository from "../repository/curation.mock.js";
+
 import {
   BadRequestError,
   ForbiddenError,
@@ -86,8 +88,7 @@ class CurationController {
     res
       .status(200)
       .json(new PaginationResponse(page, totalPages, totalItemCount, data));
-  };
-}
+  };         
 
 const controller = new CurationController();
 export default controller;
