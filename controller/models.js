@@ -51,7 +51,14 @@ export const GalleryStylesSearchParamsSchema = z.object({
   tag: z.string().optional(),
   page: z
     .string() // 처음에 문자로 들어올텐데
-    .nonempty("page는 빈 문자열일 수 없습니다.") // 꼭 있어야 하고
+    .default("1")
+    .preprocess(
+      (a) => parseInt(a) ?? a, // 숫자로 변환해봐서 성공이면 숫자, NaN이면 그냥 원래 스트링을 반환
+      z.number().int("정수여야 합니다.").min(1, "1 이상이어야 합니다.") // 여기에 default값 설정 가능
+    ),
+  pageSize: z
+    .string() // 처음에 문자로 들어올텐데
+    .default("10")
     .preprocess(
       (a) => parseInt(a) ?? a, // 숫자로 변환해봐서 성공이면 숫자, NaN이면 그냥 원래 스트링을 반환
       z.number().int("정수여야 합니다.").min(1, "1 이상이어야 합니다.") // 여기에 default값 설정 가능
@@ -70,14 +77,30 @@ export const RankingStylesSearchParamsSchema = z.object({
     .optional()
     .default("total"),
   page: z
-    .preprocess((val) => (val ? parseInt(val) : 1), z.number().min(1))
-    .default(1),
+    .string()
+    .default("1")
+    .preprocess((val) => parseInt(val) ?? val, z.number().min(1)),
+  pageSize: z
+    .string() // 처음에 문자로 들어올텐데
+    .default("10")
+    .preprocess(
+      (a) => parseInt(a) ?? a, // 숫자로 변환해봐서 성공이면 숫자, NaN이면 그냥 원래 스트링을 반환
+      z.number().int("정수여야 합니다.").min(1, "1 이상이어야 합니다.") // 여기에 default값 설정 가능
+    ),
 });
 
 export const CurationsSearchParamsSchema = z.object({
   page: z
-    .preprocess((val) => (val ? parseInt(val) : 1), z.number().min(1))
-    .default(1),
+    .string()
+    .default("1")
+    .preprocess((val) => parseInt(val) ?? val, z.number().min(1)),
+  pageSize: z
+    .string() // 처음에 문자로 들어올텐데
+    .default("10")
+    .preprocess(
+      (a) => parseInt(a) ?? a, // 숫자로 변환해봐서 성공이면 숫자, NaN이면 그냥 원래 스트링을 반환
+      z.number().int("정수여야 합니다.").min(1, "1 이상이어야 합니다.") // 여기에 default값 설정 가능
+    ),
   searchBy: z.enum(["nickname", "content"]).optional().default("nickname"),
   keyword: z.string().optional().default(""),
 });
