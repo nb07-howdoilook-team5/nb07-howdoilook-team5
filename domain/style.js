@@ -7,11 +7,11 @@ import { BadRequestError } from "../error/errors.js";
 // - 유저가 사진(여러장 가능)을 업로드하고 태그(최대 3개), 제목, 닉네임, 스타일 구성, 스타일 설명, 비밀번호를 입력하여 스타일을 등록합니다.
 export class UnregisteredStyle {
   // 태그(최대 3개), 제목, 닉네임, 스타일 구성, 스타일 설명, 비밀번호
-  constructor(tags, title, nickname, styleComponent, description, password) {
+  constructor(tags, title, nickname, categories, description, password) {
     this.tags = tags;
     this.title = title;
     this.nickname = nickname;
-    this.styleComponent = styleComponent;
+    this.categories = categories;
     this.description = description;
     this.password = password;
   }
@@ -20,7 +20,7 @@ export class UnregisteredStyle {
     tags,
     title,
     nickname,
-    styleComponent,
+    categories,
     description,
     password,
   }) {
@@ -30,7 +30,7 @@ export class UnregisteredStyle {
       tags,
       title,
       nickname,
-      styleComponent,
+      categories,
       description,
       password
     );
@@ -44,7 +44,7 @@ export class Style {
     tags,
     title,
     nickname,
-    styleComponent,
+    categories,
     description,
     password,
     createdAt,
@@ -54,7 +54,7 @@ export class Style {
     this.tags = tags;
     this.title = title;
     this.nickname = nickname;
-    this.styleComponent = styleComponent;
+    this.categories = categories;
     this.description = description;
     this.password = password;
     this.createdAt = createdAt;
@@ -76,24 +76,12 @@ export class Style {
     if (tags.length > 3) throw new BadRequestError("태그 너무 많아, 3개까지만");
     const curationCount = _count ? _count.curations : 0;
 
-    let styleComponentInstances = {};
-    if (categories && categories === "object") {
-      Object.entries(categories).forEach(([key, value]) => {
-        styleComponentInstances[key] = StyleComponent.fromEntity({
-          category: key,
-          clothName: value.name,
-          brandName: value.brand,
-          price: value.price,
-        });
-      });
-    }
-
     return new Style(
       id,
       tags,
       title,
       nickname,
-      styleComponentInstances,
+      categories,
       description,
       password,
       createdAt,
