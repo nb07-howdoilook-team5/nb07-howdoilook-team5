@@ -4,7 +4,14 @@ import { RankingStyle } from "../controller/models.js";
 
 export const create = (createData) =>
   throwHttpError(prisma.style.create, {
-    data: createData,
+    data: {
+      createData,
+      style_count: {
+        create: {
+          view_count: 0,
+        },
+      },
+    },
   }).then(Style.fromEntity);
 
 export const update = (styleId, password, updateData) =>
@@ -24,10 +31,13 @@ export const remove = (styleId, password) =>
     },
   }).then(Style.fromEntity);
 
-export const detail = (styleId) =>
-  throwHttpError(prisma.style.findUnique, {
+export const detail = (styleId) => prisma.style.update({
     where: { id: styleId },
-    include: { _count: { curations: true } },
+    data: {
+      style_count: {
+        view_count: { increment: 1 },
+      },
+    },
   }).then(Style.fromEntity);
 
 export const list = (searchBy, keyword, sortBy, skip, limit) => {
