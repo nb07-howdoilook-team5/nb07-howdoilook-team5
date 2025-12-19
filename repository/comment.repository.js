@@ -16,8 +16,8 @@ export const update = (commentId, password, data) =>
         id: commentId,
         password: password,
       },
+      data,
     },
-    data
   );
 
 export const remove = (commentId, password) =>
