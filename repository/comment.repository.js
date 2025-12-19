@@ -9,16 +9,21 @@ export const create = (curationId, data) =>
   });
 
 export const update = (commentId, password, data) =>
-  throwHttpError(prisma.curationComment.update, {
-    where: {
-      id_password: { id: commentId, password },
+  throwHttpError(
+    prisma.curationComment.update,
+    {
+      where: {
+        id: commentId,
+        password: password,
+      },
+      data,
     },
-    data,
-  });
+  );
 
 export const remove = (commentId, password) =>
   throwHttpError(prisma.curationComment.delete, {
     where: {
-      id_password: { id: commentId, password },
+      id: commentId,
+      password: password,
     },
   });
