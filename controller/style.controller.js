@@ -11,10 +11,8 @@ import * as styleRepository from "../repository/style.repository.js";
 
 const validatePostStyle = (req) => StyleFormInput.parse(req.body);
 
-const validateGetStyles = (req) => ({
-  ...GalleryStylesSearchParamsSchema.parse(req.query),
-  limit: 12,
-});
+const validateGetStyles = (req) =>
+  GalleryStylesSearchParamsSchema.parse(req.query);
 
 const validateGetStyle = (req) => {
   const { id } = req.params; // <-- id는 여기서 가져오는 것이 맞습니다.
@@ -50,22 +48,23 @@ class StyleController {
   };
 
   getGalleryStyles = async (req, res, next) => {
-    const { page, searchBy, keyword, sortBy, limit } = validateGetStyles(req);
-    const skip = (page - 1) * limit;
+    const { page, searchBy, keyword, sortBy, pageSize } =
+      validateGetStyles(req);
+    const skip = (page - 1) * pageSize;
 
     const { totalItemCount, styles } = await styleRepository.list(
       searchBy,
       keyword,
       sortBy,
       skip,
-      limit
+      pageSize
     );
     res
       .status(200)
       .json(
         new PaginationResponse(
           page,
-          Math.ceil(totalItemCount / limit),
+          Math.ceil(totalItemCount / pageSize),
           totalItemCount,
           styles
         )
@@ -73,12 +72,11 @@ class StyleController {
   };
 
   getRankingStyles = async (req, res, next) => {
-    const { page, rankBy } = validateGetRankingStyles(req);
-    const limit = 10;
+    const { page, pageSize, rankBy } = validateGetRankingStyles(req);
     const { totalItemCount, rankedStyles } = await styleRepository.ranking(
       rankBy,
       page,
-      limit
+      pageSize
     );
 
     res
@@ -86,7 +84,7 @@ class StyleController {
       .json(
         new PaginationResponse(
           page,
-          Math.ceil(totalItemCount / limit),
+          Math.ceil(totalItemCount / pageSize),
           totalItemCount,
           rankedStyles
         )
