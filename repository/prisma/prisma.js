@@ -11,7 +11,7 @@ import {
   BadRequestError,
   NotFoundError,
   InternalServerError,
-} from "../errors/errors.js";
+} from "../error/errors.js";
 
 const connectionString = process.env.DATABASE_URL;
 const pool = new pkg.Pool({ connectionString });

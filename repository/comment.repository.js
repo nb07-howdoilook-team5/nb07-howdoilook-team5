@@ -1,4 +1,4 @@
-import { prisma, throwHttpError } from "../repository/prisma/prisma.js";
+import { prisma, throwHttpError } from "./prisma/prisma.js";
 
 export const create = (curationId, data) =>
   throwHttpError(prisma.curationComment.create, {

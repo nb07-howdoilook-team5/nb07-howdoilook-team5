@@ -2,14 +2,15 @@ import { Router } from "express";
 import commentRouter from "./comment.router.js";
 import curationRouter from "./curation.router.js";
 import styleRouter from "./style.router.js";
+import imageRouter from "./image.router.js";
 
 const router = new Router();
 
 router.use("/comments", commentRouter);
 router.use("/curations", curationRouter);
 router.use("/styles", styleRouter);
+router.use("/images", imageRouter);
 
-router.post(`/images`, uploadImage);
 router.get(`/tags`, getGalleryTags);
 router.get(`/ranking`, getRankingStyles);
 
