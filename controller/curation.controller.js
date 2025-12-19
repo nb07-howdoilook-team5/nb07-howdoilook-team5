@@ -3,6 +3,7 @@ import {
   CurationDeleteFormInput,
   PaginationResponse,
   Curation,
+  CurationsSearchParamsSchema,
 } from "./models";
 import * as curationRepository from "../repository/curation.repository.js";
 import {
@@ -38,16 +39,8 @@ const validateDeleteCuration = (req) => {
   };
 };
 
-const validateGetCurations = (req) => {
-  const { styleId } = req.params;
-  const { page = 1, searchBy, keyword } = req.query;
-  return {
-    styleId,
-    page: parseInt(page),
-    searchBy,
-    keyword,
-  };
-};
+const validateGetCurations = (req) =>
+  CurationsSearchParamsSchema.parse(req.query);
 
 class CurationController {
   postCuration = async (req, res, next) => {
@@ -77,8 +70,8 @@ class CurationController {
   };
 
   getCurations = async (req, res, next) => {
-    const { styleId, page, searchBy, keyword } = validateGetCurations(req);
-    const pageSize = 5;
+    const { styleId, page, pageSize, searchBy, keyword } =
+      validateGetCurations(req);
     const skip = (page - 1) * pageSize;
     const { totalItemCount, entities } = await curationRepository.list(
       styleId,
