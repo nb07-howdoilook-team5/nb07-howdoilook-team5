@@ -163,7 +163,7 @@ export class RankingStyle {
 export class StyleDetail {
   constructor(
     id,
-    imageUrls, // []
+    thumbnail, // []
     tags, // []
     title,
     content,
@@ -173,7 +173,7 @@ export class StyleDetail {
     categories //{    [key in CategoryKey]?: CategoryValue  }
   ) {
     this.id = id;
-    this.imageUrls = imageUrls;
+    this.thumbnail = thumbnail;
     this.tags = tags;
     this.title = title;
     this.content = content;

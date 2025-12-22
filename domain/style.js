@@ -14,7 +14,8 @@ export class Style {
     categories,
     description,
     createdAt,
-    curationCount
+    curationCount,
+    viewCount
   ) {
     this.id = id;
     this.tags = tags;
@@ -24,6 +25,7 @@ export class Style {
     this.description = description;
     this.createdAt = createdAt;
     this.curationCount = curationCount;
+    this.viewCount = viewCount;
   }
 
   static fromEntity(entity) {
@@ -31,7 +33,7 @@ export class Style {
 
     const {
       id,
-      tags,
+      style_tags,
       title,
       nickname,
       categories,
@@ -41,8 +43,9 @@ export class Style {
       _count,
     } = entity;
 
-    if (tags && tags.length > 3) {
-      tags = tags.slice(0, 3);
+    let tags = [];
+    if (Array.isArray(style_tags)) {
+      tags = style_tags.map((st) => st.tag?.name).filter(Boolean);
     }
     const viewCount = style_count?.view_count ?? 0;
     const curationCount = _count?.curations ?? 0;
