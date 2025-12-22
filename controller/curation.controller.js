@@ -88,7 +88,8 @@ class CurationController {
     res
       .status(200)
       .json(new PaginationResponse(page, totalPages, totalItemCount, data));
-  };         
+  };
+}
 
 const controller = new CurationController();
 export default controller;
