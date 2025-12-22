@@ -176,7 +176,7 @@ export const ranking = async (rankBy, page, take) => {
 
       return new RankingStyle(
         entity.id.toString(),
-        entity.imageUrls?.[0] || "",
+        entity.image_urls?.[0] || "",
         entity.tags,
         entity.title,
         entity.nickname,

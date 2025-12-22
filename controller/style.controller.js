@@ -22,12 +22,15 @@ const validateGetStyle = (req) => {
 const validateUpdateStyle = (req) => {
   const body = StyleFormInput.parse(req.body);
   const { password, ...data } = body;
-  const id = req.params.id || req.params.styleId;
-  return { styleId: id, password, data };
+  return {
+    styleId: req.params.styleId,
+    password,
+    data,
+  };
 };
 
 const validateDeleteStyle = (req) => ({
-  styleId: req.params.styleId || req.params.id,
+  styleId: req.params.styleId,
   password: StyleDeleteFormInput.parse(req.body).password,
 });
 

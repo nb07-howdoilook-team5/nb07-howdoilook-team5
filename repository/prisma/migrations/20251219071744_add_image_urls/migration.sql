@@ -1,2 +1,2 @@
 -- AlterTable
-ALTER TABLE "style" ADD COLUMN     "imageUrls" TEXT[];
+ALTER TABLE "style" ADD COLUMN     "image_urls" TEXT[];
