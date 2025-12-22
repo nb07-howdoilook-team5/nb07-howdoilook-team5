@@ -2,10 +2,12 @@ import { Style } from "../domain/style.js";
 import { prisma, throwHttpError } from "./prisma/prisma.js";
 import { RankingStyle } from "../controller/models.js";
 
-export const create = (createData) =>
-  throwHttpError(prisma.style.create, {
+export const create = (createData) => {
+  const { content, ...rest } = createData;
+  return throwHttpError(prisma.style.create, {
     data: {
-      createData,
+      ...rest,
+      description: content,
       style_count: {
         create: {
           view_count: 0,
@@ -13,15 +15,21 @@ export const create = (createData) =>
       },
     },
   }).then(Style.fromEntity);
+};
 
-export const update = (styleId, password, updateData) =>
-  throwHttpError(prisma.style.update, {
+export const update = (styleId, password, updateData) => {
+  const { content, ...rest } = updateData;
+  return throwHttpError(prisma.style.update, {
     where: {
       id: styleId,
       password: password,
     },
-    data: updateData,
+    data: {
+      ...rest,
+      description: content,
+    },
   }).then(Style.fromEntity);
+};
 
 export const remove = (styleId, password) =>
   throwHttpError(prisma.style.delete, {
@@ -31,39 +39,38 @@ export const remove = (styleId, password) =>
     },
   }).then(Style.fromEntity);
 
-export const detail = (styleId) => prisma.style.update({
-    where: { id: styleId },
-    data: {
-      style_count: {
-        view_count: { increment: 1 },
+export const detail = (styleId) =>
+  throwHttpError(() =>
+    prisma.style.update({
+      where: { id: styleId },
+      data: {
+        style_count: {
+          update: {
+            view_count: { increment: 1 },
+          },
+        },
       },
-    },
-  }).then(Style.fromEntity);
+    })
+  ).then(Style.fromEntity);
 
 export const list = (searchBy, keyword, sortBy, skip, limit) => {
   const where = {};
-  const searchByStylenickname = "nickname";
-  const searchByStyletitle = "title";
-  const searchByStylecontent = "content";
-  const searchByStyletag = "tag";
 
   if (keyword) {
     switch (searchBy) {
-      case searchByStylenickname:
+      case "nickname":
         where.nickname = { contains: keyword };
         break;
-      case searchByStylecontent:
+      case "content":
         where.description = { contains: keyword };
         break;
-      case searchByStyletitle:
+      case "title":
         where.title = { contains: keyword };
         break;
-      case searchByStyletag:
+      case "tag":
         const keywordArray = keyword.split(",").map((item) => item.trim());
         where.tags = { hasSome: keywordArray };
         break;
-      default:
-        throw new InternalServerError(`Invalid searchBy: ${searchBy}`);
     }
   }
 
@@ -71,7 +78,7 @@ export const list = (searchBy, keyword, sortBy, skip, limit) => {
   if (sortBy === "latest") {
     orderByArr.push({ created_at: "desc" });
   } else if (sortBy === "mostViewed") {
-    orderByArr.push({ viewCount: "desc" });
+    orderByArr.push({ style_count: { view_count: "desc" } });
   } else if (sortBy === "mostCurated") {
     orderByArr.push({ curations: { _count: "desc" } });
   }
@@ -88,8 +95,9 @@ export const list = (searchBy, keyword, sortBy, skip, limit) => {
         take: limit,
         orderBy: orderByArr,
         include: {
+          style_count: true,
           _count: {
-            curations: true,
+            select: { curations: true },
           },
         },
       }),
@@ -168,7 +176,7 @@ export const ranking = async (rankBy, page, take) => {
 
       return new RankingStyle(
         entity.id.toString(),
-        entity.image_urls?.[0] || "",
+        entity.imageUrls?.[0] || "",
         entity.tags,
         entity.title,
         entity.nickname,
