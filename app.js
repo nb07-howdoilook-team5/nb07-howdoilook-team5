@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
-import errorHandler from "./middlewares/errorHandler.js";
+import errorHandler from "./middleware/errorHandler.js";
+import router from "./router/router.js";
 import { config } from "dotenv";
 config(); // .env 읽어서 process.env.아래 위치시키기
 

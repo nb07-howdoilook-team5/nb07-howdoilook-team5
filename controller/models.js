@@ -39,7 +39,7 @@ export const SortBySchema = z.union([
 
 export const SearchByStyleSchema = z.union([
   z.literal("nickname"),
-  z.literal("description"),
+  z.literal("content"),
   z.literal("title"),
   z.literal("tag"),
 ]);
@@ -49,20 +49,17 @@ export const GalleryStylesSearchParamsSchema = z.object({
   searchBy: SearchByStyleSchema.optional(),
   keyword: z.string().optional(),
   tag: z.string().optional(),
-  page: z
-    .string() // 처음에 문자로 들어올텐데
-    .default("1")
-    .preprocess(
-      (a) => parseInt(a) ?? a, // 숫자로 변환해봐서 성공이면 숫자, NaN이면 그냥 원래 스트링을 반환
-      z.number().int("정수여야 합니다.").min(1, "1 이상이어야 합니다.") // 여기에 default값 설정 가능
-    ),
-  pageSize: z
-    .string() // 처음에 문자로 들어올텐데
-    .default("10")
-    .preprocess(
-      (a) => parseInt(a) ?? a, // 숫자로 변환해봐서 성공이면 숫자, NaN이면 그냥 원래 스트링을 반환
-      z.number().int("정수여야 합니다.").min(1, "1 이상이어야 합니다.") // 여기에 default값 설정 가능
-    ),
+  page: z.coerce
+    .number()
+    .int("정수여야 합니다.")
+    .min(1, "1 이상이어야 합니다.")
+    .default(1),
+
+  pageSize: z.coerce
+    .number()
+    .int("정수여야 합니다.")
+    .min(1, "1 이상이어야 합니다.")
+    .default(10),
 });
 
 export const RankingStylesSearchParamsSchema = z.object({
@@ -76,31 +73,31 @@ export const RankingStylesSearchParamsSchema = z.object({
     ])
     .optional()
     .default("total"),
-  page: z
-    .string()
-    .default("1")
-    .preprocess((val) => parseInt(val) ?? val, z.number().min(1)),
-  pageSize: z
-    .string() // 처음에 문자로 들어올텐데
-    .default("10")
-    .preprocess(
-      (a) => parseInt(a) ?? a, // 숫자로 변환해봐서 성공이면 숫자, NaN이면 그냥 원래 스트링을 반환
-      z.number().int("정수여야 합니다.").min(1, "1 이상이어야 합니다.") // 여기에 default값 설정 가능
-    ),
+  page: z.coerce
+    .number()
+    .int("정수여야 합니다.")
+    .min(1, "1 이상이어야 합니다.")
+    .default(1),
+
+  pageSize: z.coerce
+    .number()
+    .int("정수여야 합니다.")
+    .min(1, "1 이상이어야 합니다.")
+    .default(10),
 });
 
 export const CurationsSearchParamsSchema = z.object({
-  page: z
-    .string()
-    .default("1")
-    .preprocess((val) => parseInt(val) ?? val, z.number().min(1)),
-  pageSize: z
-    .string() // 처음에 문자로 들어올텐데
-    .default("10")
-    .preprocess(
-      (a) => parseInt(a) ?? a, // 숫자로 변환해봐서 성공이면 숫자, NaN이면 그냥 원래 스트링을 반환
-      z.number().int("정수여야 합니다.").min(1, "1 이상이어야 합니다.") // 여기에 default값 설정 가능
-    ),
+  page: z.coerce
+    .number()
+    .int("정수여야 합니다.")
+    .min(1, "1 이상이어야 합니다.")
+    .default(1),
+
+  pageSize: z.coerce
+    .number()
+    .int("정수여야 합니다.")
+    .min(1, "1 이상이어야 합니다.")
+    .default(10),
   searchBy: z.enum(["nickname", "content"]).optional().default("nickname"),
   keyword: z.string().optional().default(""),
 });
@@ -140,7 +137,7 @@ export class Ranking {
 export class RankingStyle {
   constructor(
     id,
-    thumbnail,
+    imageUrls,
     tags, // []
     title,
     nickname,
@@ -151,7 +148,7 @@ export class RankingStyle {
     rating
   ) {
     this.id = id;
-    this.thumbnail = thumbnail;
+    this.imageUrls = imageUrls;
     this.tags = tags;
     this.title = title;
     this.nickname = nickname;
@@ -166,7 +163,7 @@ export class RankingStyle {
 export class StyleDetail {
   constructor(
     id,
-    imageUrls, // []
+    thumbnail, // []
     tags, // []
     title,
     content,
@@ -176,7 +173,7 @@ export class StyleDetail {
     categories //{    [key in CategoryKey]?: CategoryValue  }
   ) {
     this.id = id;
-    this.imageUrls = imageUrls;
+    this.thumbnail = thumbnail;
     this.tags = tags;
     this.title = title;
     this.content = content;
@@ -273,17 +270,23 @@ export const StyleFormInput = z.object({
     ),
 
   categories: z
-    .record(AllowedCategoryKeys, CategoryItemSchema)
-    .refine((data) => Object.keys(data).length > 0, {
+    .object({
+      top: CategoryItemSchema.optional(),
+      bottom: CategoryItemSchema.optional(),
+      outer: CategoryItemSchema.optional(),
+      dress: CategoryItemSchema.optional(),
+      shoes: CategoryItemSchema.optional(),
+      bag: CategoryItemSchema.optional(),
+      accessory: CategoryItemSchema.optional(),
+    })
+    .refine((data) => Object.values(data).some((val) => val !== undefined), {
       message: "최소 하나 이상의 스타일 구성요소를 입력해야 합니다.",
     }),
 });
 
-export class StyleDeleteFormInput {
-  constructor(password) {
-    this.password = password;
-  }
-}
+export const StyleDeleteFormInput = z.object({
+  password: z.string().min(1, "비밀번호를 입력해주세요."),
+});
 
 // curation - input
 
