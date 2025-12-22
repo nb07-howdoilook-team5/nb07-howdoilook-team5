@@ -4,7 +4,6 @@ import {
   PaginationResponse,
   GalleryStylesSearchParamsSchema,
   RankingStylesSearchParamsSchema,
-  Style,
   RankingStyle,
 } from "./models.js";
 import * as styleRepository from "../repository/style.repository.js";
@@ -15,19 +14,20 @@ const validateGetStyles = (req) =>
   GalleryStylesSearchParamsSchema.parse(req.query);
 
 const validateGetStyle = (req) => {
-  const { id } = req.params; // <-- id는 여기서 가져오는 것이 맞습니다.
+  const { styleId } = req.params; // <-- id는 여기서 가져오는 것이 맞습니다.
   return {
-    styleId: id, // <-- 매개변수 이름을 styleId로 통일하는 것이 좋습니다.
+    styleId, // <-- 매개변수 이름을 styleId로 통일하는 것이 좋습니다.
   };
 };
 const validateUpdateStyle = (req) => {
   const body = StyleFormInput.parse(req.body);
   const { password, ...data } = body;
-  return { styleId: req.params.id, password, data };
+  const id = req.params.id || req.params.styleId;
+  return { styleId: id, password, data };
 };
 
 const validateDeleteStyle = (req) => ({
-  styleId: req.params.id,
+  styleId: req.params.styleId || req.params.id,
   password: StyleDeleteFormInput.parse(req.body).password,
 });
 
@@ -44,7 +44,7 @@ class StyleController {
   putStyle = async (req, res, next) => {
     const { styleId, password, data } = validateUpdateStyle(req);
     const updated = await styleRepository.update(styleId, password, data);
-    res.status(201).json(updated);
+    res.status(200).json(updated);
   };
 
   getGalleryStyles = async (req, res, next) => {
