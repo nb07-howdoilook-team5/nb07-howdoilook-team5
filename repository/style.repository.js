@@ -1,69 +1,140 @@
 import { Style } from "../domain/style.js";
 import { prisma, throwHttpError } from "./prisma/prisma.js";
 import { RankingStyle } from "../controller/models.js";
+import { ForbiddenError, NotFoundError } from "../error/errors.js";
 
-export const create = (createData) =>
-  throwHttpError(prisma.style.create, {
-    data: {
-      createData,
-      style_count: {
-        create: {
-          view_count: 0,
+export const create = (createData) => {
+  const { content, tags = [], imageUrls, ...rest } = createData;
+  return throwHttpError(() =>
+    prisma.style.create({
+      data: {
+        ...rest,
+        description: content,
+        image_urls: imageUrls,
+        style_count: {
+          create: { view_count: 0 },
+        },
+        style_tags: {
+          create: tags.map((tagName) => ({
+            tag: {
+              connectOrCreate: {
+                where: { name: tagName },
+                create: { name: tagName },
+              },
+            },
+          })),
         },
       },
-    },
-  }).then(Style.fromEntity);
-
-export const update = (styleId, password, updateData) =>
-  throwHttpError(prisma.style.update, {
-    where: {
-      id: styleId,
-      password: password,
-    },
-    data: updateData,
-  }).then(Style.fromEntity);
-
-export const remove = (styleId, password) =>
-  throwHttpError(prisma.style.delete, {
-    where: {
-      id: styleId,
-      password: password,
-    },
-  }).then(Style.fromEntity);
-
-export const detail = (styleId) => prisma.style.update({
-    where: { id: styleId },
-    data: {
-      style_count: {
-        view_count: { increment: 1 },
+      include: {
+        style_tags: { include: { tag: true } },
+        style_count: true,
       },
-    },
-  }).then(Style.fromEntity);
+    })
+  ).then(Style.fromEntity);
+};
 
+export const update = async (styleId, password, updateData) => {
+  const style = await prisma.style.findUnique({
+    where: { id: BigInt(styleId) },
+    include: { style_count: true },
+  });
+
+  if (!style) {
+    throw new NotFoundError("스타일을 찾을 수 없습니다.");
+  }
+
+  if (style.password !== password) {
+    throw new ForbiddenError("비밀번호가 일치하지 않습니다.");
+  }
+
+  const { content, title, tags = [], imageUrls, categories } = updateData;
+
+  return throwHttpError(async () => {
+    const updatedStyle = await prisma.style.update({
+      where: { id: BigInt(styleId) },
+      data: {
+        title,
+        description: content,
+        image_urls: imageUrls,
+        categories,
+        updated_at: new Date(),
+        style_tags: {
+          deleteMany: {},
+          create: tags.map((tagName) => ({
+            tag: {
+              connectOrCreate: {
+                where: { name: tagName },
+                create: { name: tagName },
+              },
+            },
+          })),
+        },
+      },
+      include: {
+        style_tags: { include: { tag: true } },
+      },
+    });
+
+    return {
+      ...updatedStyle,
+      style_count: style.style_count,
+    };
+  }).then(Style.fromEntity);
+};
+
+export const remove = async (styleId, password) => {
+  const style = await prisma.style.findUnique({
+    where: { id: BigInt(styleId) },
+  });
+  if (!style) {
+    throw new NotFoundError("스타일을 찾을 수 없습니다.");
+  }
+  if (style.password !== password) {
+    throw new ForbiddenError("비밀번호가 일치하지 않습니다.");
+  }
+
+  return throwHttpError(prisma.style.delete, {
+    where: { id: BigInt(styleId) },
+  }).then(Style.fromEntity);
+};
+
+export const detail = async (styleId) => {
+  return throwHttpError(async () => {
+    const style = await prisma.style.findUnique({
+      where: { id: BigInt(styleId) },
+    });
+
+    if (!style) throw new NotFoundError();
+
+    await prisma.style_count.update({
+      where: { id: style.style_count_id },
+      data: { view_count: { increment: 1 } },
+    });
+
+    return prisma.style.findUnique({
+      where: { id: BigInt(styleId) },
+      include: {
+        style_count: true,
+        _count: { select: { curations: true } },
+        style_tags: { include: { tag: true } },
+      },
+    });
+  }).then(Style.fromEntity);
+};
 export const list = (searchBy, keyword, sortBy, skip, limit) => {
   const where = {};
-  const searchByStylenickname = "nickname";
-  const searchByStyletitle = "title";
-  const searchByStylecontent = "content";
-  const searchByStyletag = "tag";
-
   if (keyword) {
-    switch (searchBy) {
-      case searchByStylenickname:
-        where.nickname = { contains: keyword };
-        break;
-      case searchByStylecontent:
-        where.description = { contains: keyword };
-        break;
-      case searchByStyletitle:
-        where.title = { contains: keyword };
-        break;
-      case searchByStyletag:
-        const keywordArray = keyword.split(",").map((item) => item.trim());
-        where.tags = { hasSome: keywordArray };
-        break;
-      default:
-        throw new InternalServerError(`Invalid searchBy: ${searchBy}`);
+    if (searchBy === "nickname") where.nickname = { contains: keyword };
+    if (searchBy === "title") where.title = { contains: keyword };
+    if (searchBy === "content") where.description = { contains: keyword };
+    if (searchBy === "tag") {
+      where.style_tags = {
+        some: {
+          tag: {
+            name: { contains: keyword },
+          },
+        },
+      };
     }
   }
 
@@ -71,13 +142,12 @@ export const list = (searchBy, keyword, sortBy, skip, limit) => {
   if (sortBy === "latest") {
     orderByArr.push({ created_at: "desc" });
   } else if (sortBy === "mostViewed") {
-    orderByArr.push({ viewCount: "desc" });
+    orderByArr.push({ style_count: { view_count: "desc" } });
   } else if (sortBy === "mostCurated") {
     orderByArr.push({ curations: { _count: "desc" } });
   }
 
-  // 정렬 조건이 없을 경우 기본 정렬 추가 (예: 최신순)
-  orderByArr.push({ id: "asc" }); // 또는 { createdAt: "desc" }
+  orderByArr.push({ id: "asc" });
 
   return prisma
     .$transaction([
@@ -88,8 +158,9 @@ export const list = (searchBy, keyword, sortBy, skip, limit) => {
         take: limit,
         orderBy: orderByArr,
         include: {
+          style_count: true,
           _count: {
-            curations: true,
+            select: { curations: true },
           },
         },
       }),

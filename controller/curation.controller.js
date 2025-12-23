@@ -4,7 +4,7 @@ import {
   PaginationResponse,
   Curation,
   CurationsSearchParamsSchema,
-} from "./models";
+} from "./models.js";
 import * as curationRepository from "../repository/curation.repository.js";
 import {
   BadRequestError,
