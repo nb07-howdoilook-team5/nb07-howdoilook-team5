@@ -14,7 +14,7 @@ router.use("/curations", curationRouter);
 router.use("/styles", styleRouter);
 router.use("/images", imageRouter);
 
-router.get(`/tags`, tagRouter);
+router.use(`/tags`, tagRouter);
 router.get("/ranking", withErrorHandler(styleController.getRankingStyles));
 
 export default router;
