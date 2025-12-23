@@ -184,29 +184,6 @@ export class StyleDetail {
   }
 }
 
-// curation - data
-export class Curation {
-  constructor(
-    id,
-    nickname,
-    content,
-    trendy,
-    personality,
-    practicality,
-    costEffectiveness,
-    comment //: CommentType | {}
-  ) {
-    this.id = id;
-    this.nickname = nickname;
-    this.content = content;
-    this.trendy = trendy;
-    this.personality = personality;
-    this.practicality = practicality;
-    this.costEffectiveness = costEffectiveness;
-    this.comment = comment;
-  }
-}
-
 export class Comment {
   constructor(id, nickname, content) {
     this.id = id;
@@ -290,56 +267,64 @@ export const StyleDeleteFormInput = z.object({
 
 // curation - input
 
-export const CurationFormInput = z.object({
-  nickname: z
-    .string({
-      required_error: "닉네임을 입력해야 합니다.",
-    })
-    .min(1, "닉네임은 최소 1자 이상이어야 합니다.")
-    .max(20, "닉네임은 최대 20자까지 가능합니다."),
+export const CurationFormInput = z
+  .object({
+    nickname: z
+      .string({
+        required_error: "닉네임을 입력해야 합니다.",
+      })
+      .min(1, "닉네임은 최소 1자 이상이어야 합니다.")
+      .max(20, "닉네임은 최대 20자까지 가능합니다."),
 
-  content: z
-    .string({
-      required_error: "한줄 큐레이팅 내용을 입력해야 합니다.",
-    })
-    .min(1, "큐레이팅 내용은 최소 1자 이상이어야 합니다.")
-    .max(150, "큐레이팅 내용은 최대 150자까지 가능합니다."),
+    content: z
+      .string({
+        required_error: "한줄 큐레이팅 내용을 입력해야 합니다.",
+      })
+      .min(1, "큐레이팅 내용은 최소 1자 이상이어야 합니다.")
+      .max(150, "큐레이팅 내용은 최대 150자까지 가능합니다."),
 
-  trendy: z
-    .number({ required_error: "트렌디 점수를 입력해야 합니다." })
-    .int("점수는 정수여야 합니다.")
-    .min(0, "점수는 0점 이상이어야 합니다.")
-    .max(10, "점수는 10점 이하이어야 합니다."),
+    trendy: z
+      .number({ required_error: "트렌디 점수를 입력해야 합니다." })
+      .int("점수는 정수여야 합니다.")
+      .min(0, "점수는 0점 이상이어야 합니다.")
+      .max(10, "점수는 10점 이하이어야 합니다."),
 
-  personality: z
-    .number({ required_error: "개성 점수를 입력해야 합니다." })
-    .int("점수는 정수여야 합니다.")
-    .min(0, "점수는 0점 이상이어야 합니다.")
-    .max(10, "점수는 10점 이하이어야 합니다."),
+    personality: z
+      .number({ required_error: "개성 점수를 입력해야 합니다." })
+      .int("점수는 정수여야 합니다.")
+      .min(0, "점수는 0점 이상이어야 합니다.")
+      .max(10, "점수는 10점 이하이어야 합니다."),
 
-  practicality: z
-    .number({ required_error: "실용성 점수를 입력해야 합니다." })
-    .int("점수는 정수여야 합니다.")
-    .min(0, "점수는 0점 이상이어야 합니다.")
-    .max(10, "점수는 10점 이하이어야 합니다."),
+    practicality: z
+      .number({ required_error: "실용성 점수를 입력해야 합니다." })
+      .int("점수는 정수여야 합니다.")
+      .min(0, "점수는 0점 이상이어야 합니다.")
+      .max(10, "점수는 10점 이하이어야 합니다."),
 
-  costEffectiveness: z
-    .number({ required_error: "가성비 점수를 입력해야 합니다." })
-    .int("점수는 정수여야 합니다.")
-    .min(0, "점수는 0점 이상이어야 합니다.")
-    .max(10, "점수는 10점 이하이어야 합니다."),
+    costEffectiveness: z
+      .number({ required_error: "가성비 점수를 입력해야 합니다." })
+      .int("점수는 정수여야 합니다.")
+      .min(0, "점수는 0점 이상이어야 합니다.")
+      .max(10, "점수는 10점 이하이어야 합니다."),
 
-  password: z
-    .string({
-      required_error: "비밀번호를 입력해야 합니다.",
-    })
-    .min(8, "비밀번호는 최소 8자 이상이어야 합니다.")
-    .max(16, "비밀번호는 최대 16자 이내여야 합니다.")
-    .regex(
-      /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{8,16}$/,
-      "비밀번호는 영문, 숫자 조합 8~16자리여야 합니다."
-    ),
-});
+    password: z
+      .string({
+        required_error: "비밀번호를 입력해야 합니다.",
+      })
+      .min(8, "비밀번호는 최소 8자 이상이어야 합니다.")
+      .max(16, "비밀번호는 최대 16자 이내여야 합니다.")
+      .regex(
+        /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{8,16}$/,
+        "비밀번호는 영문, 숫자 조합 8~16자리여야 합니다."
+      ),
+  })
+  .transform((data) => {
+    const { costEffectiveness, ...rest } = data;
+    return {
+      ...rest,
+      cost_effectiveness: costEffectiveness,
+    };
+  });
 
 export const CurationDeleteFormInput = z.object({
   password: z.string(),

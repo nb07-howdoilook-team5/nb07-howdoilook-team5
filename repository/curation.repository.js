@@ -1,12 +1,14 @@
 import { prisma, throwHttpError } from "./prisma/prisma.js";
 
-export const create = (createData) =>
-  throwHttpError(prisma.curation.create, {
+export const create = (createData) => {
+  const { style_id, ...rest } = createData;
+  return throwHttpError(prisma.curation.create, {
     data: {
-      ...createData,
-      style: { connect: { id: createData.style_id } },
+      ...rest,
+      style: { connect: { id: Number(style_id) } },
     },
   });
+};
 
 export const update = (curationId, password, updateData) =>
   throwHttpError(prisma.curation.update, {
