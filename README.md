@@ -107,23 +107,23 @@ npm start
 
 ## 📂 API Documentation (Summary)
 
-| Method        | Endpoint                  | Description                            |
-| :------------ | :------------------------ | :------------------------------------- |
-| **Styles**    |                           |                                        |
-| `GET`         | `/styles`                 | 스타일 목록 조회 (검색, 정렬 지원)     |
-| `POST`        | `/styles`                 | 새로운 스타일 등록                     |
-| `GET`         | `/styles/ranking`         | 큐레이션 점수 기반 랭킹 조회           |
-| `GET`         | `/styles/:id`             | 스타일 상세 조회                       |
-| **Curations** |                           |                                        |
-| `POST`        | `/styles/:id/curations`   | 특정 스타일에 대한 큐레이팅(평가) 등록 |
-| `GET`         | `/styles/:id/curations`   | 특정 스타일의 큐레이팅 목록 조회       |
-| `PUT`         | `/curations/:id`          | 특정 큐레이팅 수정 (비밀번호 확인)     |
-| `DELETE`      | `/curations/:id`          | 특정 큐레이팅 삭제 (비밀번호 확인)     |
-| **Comments**  |                           |                                        |
-| `POST`        | `/curations/:id/comments` | 큐레이팅에 대한 답글 등록              |
-| **Images**    |                           |                                        |
-| `POST`        | `/images`                 | 이미지 업로드 (URL 반환)               |
-| `GET`         | `/images/:filename`       | 이미지 파일 조회                       |
+| Method        | Endpoint                         | Description                            |
+| :------------ | :------------------------------- | :------------------------------------- |
+| **Styles**    |                                  |                                        |
+| `GET`         | `/styles`                        | 스타일 목록 조회 (검색, 정렬 지원)     |
+| `POST`        | `/styles`                        | 새로운 스타일 등록                     |
+| `GET`         | `/styles/ranking`                | 큐레이션 점수 기반 랭킹 조회           |
+| `GET`         | `/styles/:styleId`               | 스타일 상세 조회                       |
+| **Curations** |                                  |                                        |
+| `POST`        | `/styles/:styleId/curations`     | 특정 스타일에 대한 큐레이팅(평가) 등록 |
+| `GET`         | `/styles/:styleId/curations`     | 특정 스타일의 큐레이팅 목록 조회       |
+| `PUT`         | `/curations/:curationId`         | 특정 큐레이팅 수정 (비밀번호 확인)     |
+| `DELETE`      | `/curations/:curationId`         | 특정 큐레이팅 삭제 (비밀번호 확인)     |
+| **Comments**  |                                  |                                        |
+| `POST`        | `/curations/:commentId/comments` | 큐레이팅에 대한 답글 등록              |
+| **Images**    |                                  |                                        |
+| `POST`        | `/images`                        | 이미지 업로드 (URL 반환)               |
+| `GET`         | `/images/:filename`              | 이미지 파일 조회                       |
 
 ## 🔍 Database Schema (ERD Summary)
 
