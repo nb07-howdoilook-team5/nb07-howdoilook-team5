@@ -2,7 +2,6 @@ import { prisma, throwHttpError } from "./prisma/prisma.js";
 
 export const create = (createData) => {
   const { style_id, ...rest } = createData;
-
   return throwHttpError(prisma.curation.create, {
     data: {
       ...rest,
@@ -10,6 +9,7 @@ export const create = (createData) => {
     },
   });
 };
+
 export const update = (curationId, password, updateData) =>
   throwHttpError(prisma.curation.update, {
     where: {

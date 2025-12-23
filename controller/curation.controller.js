@@ -5,14 +5,7 @@ import {
   CurationsSearchParamsSchema,
 } from "./models.js";
 import { Curation } from "../domain/curation.js";
-// import * as curationRepository from "../repository/curation.repository.js";
-import * as curationRepository from "../repository/curation.mock.js";
-
-import {
-  BadRequestError,
-  ForbiddenError,
-  NotFoundError,
-} from "../error/errors.js";
+import * as curationRepository from "../repository/curation.repository.js";
 
 const validatePostCuration = (req) => {
   const { styleId } = req.params;
@@ -35,6 +28,7 @@ const validateUpdateCuration = (req) => {
 const validateDeleteCuration = (req) => {
   const { curationId } = req.params;
   const body = CurationDeleteFormInput.parse(req.body);
+
   return {
     curationId,
     password: body.password,

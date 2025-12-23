@@ -184,8 +184,6 @@ export class StyleDetail {
   }
 }
 
-// curation - data
-
 export class Comment {
   constructor(id, nickname, content) {
     this.id = id;
