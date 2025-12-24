@@ -1,7 +1,10 @@
+// ... 상단 import는 유지 ...
 import { Style } from "../domain/style.js";
 import { prisma, throwHttpError } from "./prisma/prisma.js";
 import { RankingStyle } from "../controller/models.js";
 import { ForbiddenError, NotFoundError } from "../error/errors.js";
+
+// create, update, remove, list 함수는 기존과 동일하게 두거나 이전 답변 참고
 
 export const create = (createData) => {
   const { content, tags = [], imageUrls, ...rest } = createData;
@@ -93,11 +96,14 @@ export const remove = async (styleId, password) => {
     throw new ForbiddenError("비밀번호가 일치하지 않습니다.");
   }
 
-  return throwHttpError(prisma.style.delete, {
-    where: { id: BigInt(styleId) },
-  }).then(Style.fromEntity);
+  return throwHttpError(() =>
+    prisma.style.delete({
+      where: { id: BigInt(styleId) },
+    })
+  ).then(Style.fromEntity);
 };
 
+// 수정됨: detail 함수 BigInt 적용
 export const detail = async (styleId) => {
   return throwHttpError(async () => {
     const style = await prisma.style.findUnique({
@@ -121,6 +127,7 @@ export const detail = async (styleId) => {
     });
   }).then(Style.fromEntity);
 };
+
 export const list = (searchBy, keyword, sortBy, skip, limit) => {
   const where = {};
   if (keyword) {
@@ -184,6 +191,9 @@ export const ranking = async (rankBy, page, take) => {
       _all: true,
     },
   });
+  if (aggregations.length === 0) {
+    return { totalItemCount: 0, rankedStyles: [] };
+  }
 
   const scoredStyles = aggregations.map((agg) => {
     const stats = agg._avg;
@@ -225,9 +235,11 @@ export const ranking = async (rankBy, page, take) => {
   const styleIds = pagedItems.map((item) => item.styleId);
   const styles = await prisma.style.findMany({
     where: {
-      id: {
-        in: styleIds,
-      },
+      id: { in: styleIds.map((id) => BigInt(id)) },
+    },
+    include: {
+      style_tags: { include: { tag: true } },
+      style_count: true,
     },
   });
   const styleMap = new Map(styles.map((s) => [s.id.toString(), s]));
@@ -236,14 +248,17 @@ export const ranking = async (rankBy, page, take) => {
     .map((item, index) => {
       const entity = styleMap.get(item.styleId.toString());
       if (!entity) return null;
+      const tags = entity.style_tags
+        ? entity.style_tags.map((st) => st.tag.name)
+        : [];
 
       return new RankingStyle(
         entity.id.toString(),
         entity.image_urls?.[0] || "",
-        entity.tags,
+        entity.style_tags?.map((st) => st.tag.name) || [],
         entity.title,
         entity.nickname,
-        entity.viewCount || 0,
+        entity.style_count?.view_count || 0,
         item.curationCount,
         entity.categories || {},
         startIndex + index + 1,
