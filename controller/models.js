@@ -137,7 +137,7 @@ export class Ranking {
 export class RankingStyle {
   constructor(
     id,
-    imageUrls,
+    thumbnail,
     tags, // []
     title,
     nickname,
@@ -148,7 +148,7 @@ export class RankingStyle {
     rating
   ) {
     this.id = id;
-    this.imageUrls = imageUrls;
+    this.thumbnail = thumbnail;
     this.tags = tags;
     this.title = title;
     this.nickname = nickname;

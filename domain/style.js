@@ -13,6 +13,7 @@ export class Style {
     nickname,
     categories,
     description,
+    imageUrls,
     createdAt,
     curationCount,
     viewCount
@@ -23,6 +24,8 @@ export class Style {
     this.nickname = nickname;
     this.categories = categories;
     this.description = description;
+    this.imageUrls = imageUrls;
+    this.thumbnail = imageUrls[0] || "";
     this.createdAt = createdAt;
     this.curationCount = curationCount;
     this.viewCount = viewCount;
@@ -38,6 +41,7 @@ export class Style {
       nickname,
       categories,
       description,
+      image_urls: imageUrls,
       created_at: createdAt,
       style_count,
       _count,
@@ -57,6 +61,7 @@ export class Style {
       nickname,
       categories,
       description,
+      imageUrls,
       createdAt,
       curationCount,
       viewCount
