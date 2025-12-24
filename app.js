@@ -19,6 +19,6 @@ app.use("/", router);
 app.use(errorHandler);
 
 const apiPort = process.env.API_PORT;
-app.listen(apiPort, () => {
+app.listen(apiPort, "0.0.0.0", () => {
   console.log(`떴다 ${apiPort}`);
 });
