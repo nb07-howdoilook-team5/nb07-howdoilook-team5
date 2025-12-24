@@ -8,13 +8,15 @@ import styleController from "../controller/style.controller.js";
 import withErrorHandler from "../utils/asyncHandler.js";
 
 const router = new Router();
+router.get(
+  "/styles/ranking",
+  withErrorHandler(styleController.getRankingStyles)
+);
 
 router.use("/comments", commentRouter);
 router.use("/curations", curationRouter);
 router.use("/styles", styleRouter);
 router.use("/images", imageRouter);
-
 router.use(`/tags`, tagRouter);
-router.get("/ranking", withErrorHandler(styleController.getRankingStyles));
 
 export default router;

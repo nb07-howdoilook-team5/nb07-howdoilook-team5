@@ -37,7 +37,9 @@ const upload = multer({
       );
   },
 });
-router.post("/", upload.single("image"), withErrorHandler(uploadImage));
+
+// 수정됨: "/" -> "/upload"
+router.post("/upload", upload.single("image"), withErrorHandler(uploadImage));
 router.get("/:fileName", withErrorHandler(getImage));
 
 export default router;
