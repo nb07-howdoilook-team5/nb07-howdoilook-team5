@@ -10,7 +10,7 @@ export class CurationComment {
       nickname: commentEntity.curation.style.nickname, // todo: schema relations
       content: commentEntity.content,
     };
-    validateCurationCommentInfo(info);
+    //validateCurationCommentInfo(info);
 
     return new CurationComment(info.id, info.nickname, info.content);
   }
