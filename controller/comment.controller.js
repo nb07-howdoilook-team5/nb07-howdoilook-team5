@@ -43,7 +43,7 @@ class CommentController {
       password,
     });
 
-    res.status(201).json(CurationComment.fromEntity(newEntity));
+    res.status(201).json(newEntity);
   };
 
   putComment = async (req, res) => {
@@ -55,7 +55,7 @@ class CommentController {
       data,
     });
 
-    res.status(200).json(CurationComment.fromEntity(updatedEntity));
+    res.status(200).json(updatedEntity);
   };
 
   deleteComment = async (req, res) => {
